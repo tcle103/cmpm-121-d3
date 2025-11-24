@@ -21,10 +21,19 @@ const CLASSROOM_LATLNG = leaflet.latLng(
 const map = leaflet.map("map", {
   center: CLASSROOM_LATLNG,
   zoom: 20,
+  minZoom: 10,
+  maxZoom: 30,
 });
 
 leaflet.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
   attribution:
     '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+  minZoom: 15,
+  maxZoom: 30,
 })
   .addTo(map);
+
+// Add a marker to represent the player
+const playerMarker = leaflet.marker(CLASSROOM_LATLNG);
+playerMarker.bindTooltip("You!");
+playerMarker.addTo(map);
