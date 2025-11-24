@@ -18,5 +18,5 @@ Location-based game (like Pokemon Go) where players can navigate the real world 
 - [x] delete everything in main.ts
 - [x] put a basic leaflet map on the screen
 - [x] draw the player's location on the map
-- [ ] draw a rectangle representing one cell on the map
+- [x] draw a rectangle representing one cell on the map
 - [ ] use loops to draw a whole grid of cells on the map

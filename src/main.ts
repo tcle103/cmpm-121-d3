@@ -8,6 +8,8 @@ import "./style.css"; // student-controlled page style
 // Fix missing marker images
 import "./_leafletWorkaround.ts"; // fixes for missing Leaflet images
 
+// Import our luck function
+
 const mapDiv = document.createElement("div");
 mapDiv.id = "map";
 document.body.append(mapDiv);
@@ -17,6 +19,10 @@ const CLASSROOM_LATLNG = leaflet.latLng(
   36.997936938057016,
   -122.05703507501151,
 );
+
+//const NEIGHBORHOOD_SIZE = 8;
+//const CACHE_SPAWN_PROBABILITY = 0.1;
+const TILE_DEGREES = 1e-4;
 
 const map = leaflet.map("map", {
   center: CLASSROOM_LATLNG,
@@ -37,3 +43,13 @@ leaflet.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
 const playerMarker = leaflet.marker(CLASSROOM_LATLNG);
 playerMarker.bindTooltip("You!");
 playerMarker.addTo(map);
+
+leaflet.rectangle(
+  leaflet.latLngBounds([[
+    CLASSROOM_LATLNG.lat - 0.5 * TILE_DEGREES,
+    CLASSROOM_LATLNG.lng - 0.5 * TILE_DEGREES,
+  ], [
+    CLASSROOM_LATLNG.lat + 0.5 * TILE_DEGREES,
+    CLASSROOM_LATLNG.lng + 0.5 * TILE_DEGREES,
+  ]]),
+).addTo(map);
