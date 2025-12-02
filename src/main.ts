@@ -79,7 +79,6 @@ function drawCache(i: number, j: number) {
       CLASSROOM_LATLNG.lng + (0.5 + (1 * j)) * TILE_DEGREES,
     ]]),
   );
-  console.log(rect);
   const newCache: Cache = {
     interactible: false,
     location: { x: i, y: j },
@@ -92,8 +91,20 @@ function drawCache(i: number, j: number) {
   drawRect(newCache);
 }
 
+function inCache(cache: Cache) {
+  return cache.rectangle.getBounds().contains(playerMarker.getLatLng());
+}
+
 for (let i = -NEIGHBORHOOD_SIZE; i < NEIGHBORHOOD_SIZE; ++i) {
   for (let j = -NEIGHBORHOOD_SIZE; j < NEIGHBORHOOD_SIZE; ++j) {
     drawCache(i, j);
   }
 }
+
+cacheList.forEach((cache) => {
+  if (inCache(cache)) {
+    cache.interactible = true;
+    drawRect(cache);
+    cache.rectangle.bringToFront();
+  }
+});
