@@ -18,7 +18,7 @@ const CLASSROOM_LATLNG = leaflet.latLng(
   -122.05703507501151,
 );
 
-// const NEIGHBORHOOD_SIZE = 8;
+const NEIGHBORHOOD_SIZE = 8;
 //const CACHE_SPAWN_PROBABILITY = 0.1;
 const TILE_DEGREES = 1e-4;
 
@@ -59,5 +59,8 @@ function drawCache(i: number, j: number) {
   rect.bindTooltip("im generated");
 }
 
-drawCache(0, 0);
-drawCache(1, 1);
+for (let i = -NEIGHBORHOOD_SIZE; i < NEIGHBORHOOD_SIZE; ++i) {
+  for (let j = -NEIGHBORHOOD_SIZE; j < NEIGHBORHOOD_SIZE; ++j) {
+    drawCache(i, j);
+  }
+}
