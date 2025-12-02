@@ -22,3 +22,5 @@ Location-based game (like Pokemon Go) where players can navigate the real world 
 - [x] use loops to draw a whole grid of cells on the map
 - [x] make interfaces to represent caches
 - [ ] draw caches as grey or blue based on interactibility
+- [ ] detect if player is within cell
+- [ ] detect if cells are within 3 of active cell
