@@ -104,6 +104,7 @@ function format(str: string, ...values: string[]) {
 function drawRect(cache: Cache) {
   if (!cache.cache) {
     cache.rectangle.setStyle({ opacity: 0.0, fillOpacity: 0.0 });
+    cache.rectangle.unbindTooltip();
     return;
   }
   const formatStr = format(cacheStr, cache.pointVal.toString());
@@ -125,6 +126,12 @@ function drawRect(cache: Cache) {
         }, 1500);
         cache.pointVal += playerVal;
         playerVal = 0;
+      } else {
+        statusPanelDiv.innerHTML =
+          "Already holding a token! Nothing happened...";
+        setTimeout(() => {
+          setStatus();
+        }, 1500);
       }
       drawRect(cache);
     });
