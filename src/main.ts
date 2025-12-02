@@ -45,26 +45,18 @@ playerMarker.addTo(map);
 const grid = leaflet.featureGroup();
 grid.addTo(map);
 
-const demo = leaflet.rectangle(
-  leaflet.latLngBounds([[
-    CLASSROOM_LATLNG.lat - 0.5 * TILE_DEGREES,
-    CLASSROOM_LATLNG.lng - 0.5 * TILE_DEGREES,
-  ], [
-    CLASSROOM_LATLNG.lat + 0.5 * TILE_DEGREES,
-    CLASSROOM_LATLNG.lng + 0.5 * TILE_DEGREES,
-  ]]),
-);
+function drawCache(i: number, j: number) {
+  const rect = leaflet.rectangle(
+    leaflet.latLngBounds([[
+      CLASSROOM_LATLNG.lat + (-0.5 + (0.5 * i)) * TILE_DEGREES,
+      CLASSROOM_LATLNG.lng + (-0.5 + (0.5 * j)) * TILE_DEGREES,
+    ], [
+      CLASSROOM_LATLNG.lat + (0.5 + (0.5 * i)) * TILE_DEGREES,
+      CLASSROOM_LATLNG.lng + (0.5 + (0.5 * j)) * TILE_DEGREES,
+    ]]),
+  );
+  grid.addLayer(rect);
+  rect.bindTooltip("im generated");
+}
 
-const demo2 = leaflet.rectangle(
-  leaflet.latLngBounds([[
-    CLASSROOM_LATLNG.lat - 0.5 * TILE_DEGREES,
-    CLASSROOM_LATLNG.lng + 0.5 * TILE_DEGREES,
-  ], [
-    CLASSROOM_LATLNG.lat + 0.5 * TILE_DEGREES,
-    CLASSROOM_LATLNG.lng + 1.5 * TILE_DEGREES,
-  ]]),
-);
-
-grid.addLayer(demo);
-grid.addLayer(demo2);
-grid.bindTooltip("hello world!");
+drawCache(0, 0);
