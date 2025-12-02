@@ -18,7 +18,7 @@ const CLASSROOM_LATLNG = leaflet.latLng(
   -122.05703507501151,
 );
 
-//const NEIGHBORHOOD_SIZE = 8;
+// const NEIGHBORHOOD_SIZE = 8;
 //const CACHE_SPAWN_PROBABILITY = 0.1;
 const TILE_DEGREES = 1e-4;
 
@@ -48,11 +48,11 @@ grid.addTo(map);
 function drawCache(i: number, j: number) {
   const rect = leaflet.rectangle(
     leaflet.latLngBounds([[
-      CLASSROOM_LATLNG.lat + (-0.5 + (0.5 * i)) * TILE_DEGREES,
-      CLASSROOM_LATLNG.lng + (-0.5 + (0.5 * j)) * TILE_DEGREES,
+      CLASSROOM_LATLNG.lat + (-0.5 + (1 * i)) * TILE_DEGREES,
+      CLASSROOM_LATLNG.lng + (-0.5 + (1 * j)) * TILE_DEGREES,
     ], [
-      CLASSROOM_LATLNG.lat + (0.5 + (0.5 * i)) * TILE_DEGREES,
-      CLASSROOM_LATLNG.lng + (0.5 + (0.5 * j)) * TILE_DEGREES,
+      CLASSROOM_LATLNG.lat + (0.5 + (1 * i)) * TILE_DEGREES,
+      CLASSROOM_LATLNG.lng + (0.5 + (1 * j)) * TILE_DEGREES,
     ]]),
   );
   grid.addLayer(rect);
@@ -60,3 +60,4 @@ function drawCache(i: number, j: number) {
 }
 
 drawCache(0, 0);
+drawCache(1, 1);
