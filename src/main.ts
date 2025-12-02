@@ -27,11 +27,16 @@ const TILE_DEGREES = 1e-4;
 
 const DEF_COL = "#3388ff";
 
+const POSS_VALS: number[] = [1, 2, 4, 8, 16, 32, 64, 128, 256];
+
+const cacheStr = "A cache! It holds a {0} token.";
+
 interface Cache {
   interactible: boolean;
   location: Pt;
   rectangle: leaflet.Rectangle;
   cache: boolean;
+  pointVal: number;
 }
 
 interface Pt {
@@ -74,15 +79,25 @@ function getDist(pt1: Pt, pt2: Pt) {
   return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
 }
 
+// from geeksforgeeks https://www.geeksforgeeks.org/javascript/javascript-string-formatting/
+function format(str: string, ...values: string[]) {
+  return str.replace(/{(\d+)}/g, function (match, index) {
+    return typeof values[index] !== "undefined" ? values[index] : match;
+  });
+}
+
 function drawRect(cache: Cache) {
   if (!cache.cache) {
     cache.rectangle.setStyle({ opacity: 0.0, fillOpacity: 0.0 });
     return;
   }
+  const formatStr = format(cacheStr, cache.pointVal.toString());
   if (cache.interactible) {
     cache.rectangle.setStyle({ color: DEF_COL, fillColor: DEF_COL });
+    cache.rectangle.bindTooltip(formatStr + " Click to interact!");
   } else {
     cache.rectangle.setStyle({ color: "grey", fillColor: "lightgrey" });
+    cache.rectangle.bindTooltip(formatStr + " Need to get closer...");
   }
 }
 
@@ -101,10 +116,15 @@ function drawCache(i: number, j: number) {
     location: { x: i, y: j },
     rectangle: rect,
     cache: false,
+    pointVal: 0,
   };
   if (luck([i, j].toString()) < CACHE_SPAWN_PROBABILITY) {
     newCache.cache = true;
-    rect.bindTooltip("im generated");
+    // Each cache has a random point value, mutable by the player
+    const pointValue = Math.floor(
+      luck([i, j, "initialValue"].toString()) * 5,
+    );
+    newCache.pointVal = POSS_VALS[pointValue];
   }
   cacheList.push(newCache);
   grid.addLayer(rect);
