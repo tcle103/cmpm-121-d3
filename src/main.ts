@@ -36,6 +36,8 @@ interface Pt {
   y: number;
 }
 
+let currCache: Pt = { x: 0, y: 0 };
+
 const cacheList: Cache[] = [];
 
 const map = leaflet.map("map", {
@@ -60,6 +62,14 @@ playerMarker.addTo(map);
 
 const grid = leaflet.featureGroup();
 grid.addTo(map);
+
+function getDist(pt1: Pt, pt2: Pt) {
+  const x1 = Math.abs(pt1.x);
+  const x2 = Math.abs(pt2.x);
+  const y1 = Math.abs(pt1.y);
+  const y2 = Math.abs(pt2.y);
+  return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+}
 
 function drawRect(cache: Cache) {
   if (cache.interactible) {
@@ -103,8 +113,15 @@ for (let i = -NEIGHBORHOOD_SIZE; i < NEIGHBORHOOD_SIZE; ++i) {
 
 cacheList.forEach((cache) => {
   if (inCache(cache)) {
+    currCache = cache.location;
     cache.interactible = true;
     drawRect(cache);
     cache.rectangle.bringToFront();
+  } else {
+    if (getDist(cache.location, currCache) <= 2) {
+      cache.interactible = true;
+      drawRect(cache);
+      cache.rectangle.bringToFront();
+    }
   }
 });
