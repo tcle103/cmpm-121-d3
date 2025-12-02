@@ -80,6 +80,8 @@ grid.addTo(map);
 function setStatus() {
   if (playerVal < 1) {
     statusPanelDiv.innerHTML = "Nothing in hand. Time to explore!";
+  } else if (playerVal == POSS_VALS[-1]) {
+    statusPanelDiv.innerHTML = `You got a ${playerVal} token! You win!`;
   } else {
     statusPanelDiv.innerHTML =
       `Currently holding a ${playerVal} token. Time to find another!`;
@@ -165,7 +167,6 @@ function drawCache(i: number, j: number) {
       luck([i, j, "initialValue"].toString()) * 5,
     );
     newCache.pointVal = POSS_VALS[pointValue];
-    newCache.pointVal = 2;
   }
   cacheList.push(newCache);
   grid.addLayer(rect);
