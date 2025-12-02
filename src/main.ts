@@ -11,7 +11,7 @@ import "./_leafletWorkaround.ts"; // fixes for missing Leaflet images
 // Import our luck function
 import luck from "./_luck.ts";
 
-const playerVal = 0;
+let playerVal = 0;
 
 const mapDiv = document.createElement("div");
 mapDiv.id = "map";
@@ -80,6 +80,9 @@ grid.addTo(map);
 function setStatus() {
   if (playerVal < 1) {
     statusPanelDiv.innerHTML = "Nothing in hand. Time to explore!";
+  } else {
+    statusPanelDiv.innerHTML =
+      `Currently holding a ${playerVal} token. Time to find another!`;
   }
 }
 
@@ -107,6 +110,12 @@ function drawRect(cache: Cache) {
   if (cache.interactible) {
     cache.rectangle.setStyle({ color: DEF_COL, fillColor: DEF_COL });
     cache.rectangle.bindTooltip(formatStr + " Click to interact!");
+    cache.rectangle.on("click", () => {
+      playerVal = cache.pointVal;
+      cache.cache = false;
+      setStatus();
+      drawRect(cache);
+    });
   } else {
     cache.rectangle.setStyle({ color: "grey", fillColor: "lightgrey" });
     cache.rectangle.bindTooltip(formatStr + " Need to get closer...");
