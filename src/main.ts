@@ -111,9 +111,21 @@ function drawRect(cache: Cache) {
     cache.rectangle.setStyle({ color: DEF_COL, fillColor: DEF_COL });
     cache.rectangle.bindTooltip(formatStr + " Click to interact!");
     cache.rectangle.on("click", () => {
-      playerVal = cache.pointVal;
-      cache.cache = false;
-      setStatus();
+      if (playerVal < 1) {
+        playerVal = cache.pointVal;
+        cache.cache = false;
+        setStatus();
+      } else if (cache.pointVal == playerVal) {
+        statusPanelDiv.innerHTML =
+          `Deposited ${cache.pointVal} into cache, making a ${
+            cache.pointVal * 2
+          } token!`;
+        setTimeout(() => {
+          setStatus();
+        }, 1500);
+        cache.pointVal += playerVal;
+        playerVal = 0;
+      }
       drawRect(cache);
     });
   } else {
@@ -146,6 +158,7 @@ function drawCache(i: number, j: number) {
       luck([i, j, "initialValue"].toString()) * 5,
     );
     newCache.pointVal = POSS_VALS[pointValue];
+    newCache.pointVal = 2;
   }
   cacheList.push(newCache);
   grid.addLayer(rect);
