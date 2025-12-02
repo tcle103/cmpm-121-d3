@@ -8,6 +8,9 @@ import "./style.css"; // student-controlled page style
 // Fix missing marker images
 import "./_leafletWorkaround.ts"; // fixes for missing Leaflet images
 
+// Import our luck function
+import luck from "./_luck.ts";
+
 const mapDiv = document.createElement("div");
 mapDiv.id = "map";
 document.body.append(mapDiv);
@@ -19,7 +22,7 @@ const CLASSROOM_LATLNG = leaflet.latLng(
 );
 
 const NEIGHBORHOOD_SIZE = 11;
-//const CACHE_SPAWN_PROBABILITY = 0.1;
+const CACHE_SPAWN_PROBABILITY = 0.1;
 const TILE_DEGREES = 1e-4;
 
 const DEF_COL = "#3388ff";
@@ -72,6 +75,10 @@ function getDist(pt1: Pt, pt2: Pt) {
 }
 
 function drawRect(cache: Cache) {
+  if (!cache.cache) {
+    cache.rectangle.setStyle({ opacity: 0.0, fillOpacity: 0.0 });
+    return;
+  }
   if (cache.interactible) {
     cache.rectangle.setStyle({ color: DEF_COL, fillColor: DEF_COL });
   } else {
@@ -93,11 +100,14 @@ function drawCache(i: number, j: number) {
     interactible: false,
     location: { x: i, y: j },
     rectangle: rect,
-    cache: true,
+    cache: false,
   };
+  if (luck([i, j].toString()) < CACHE_SPAWN_PROBABILITY) {
+    newCache.cache = true;
+    rect.bindTooltip("im generated");
+  }
   cacheList.push(newCache);
   grid.addLayer(rect);
-  rect.bindTooltip("im generated");
   drawRect(newCache);
 }
 
