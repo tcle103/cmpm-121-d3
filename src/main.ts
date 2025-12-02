@@ -72,11 +72,11 @@ function drawRect(cache: Cache) {
 function drawCache(i: number, j: number) {
   const rect = leaflet.rectangle(
     leaflet.latLngBounds([[
-      CLASSROOM_LATLNG.lat + (-0.5 + (1 * i)) * TILE_DEGREES,
-      CLASSROOM_LATLNG.lng + (-0.5 + (1 * j)) * TILE_DEGREES,
+      CLASSROOM_LATLNG.lat + (-0.5 + i) * TILE_DEGREES,
+      CLASSROOM_LATLNG.lng + (-0.5 + j) * TILE_DEGREES,
     ], [
-      CLASSROOM_LATLNG.lat + (0.5 + (1 * i)) * TILE_DEGREES,
-      CLASSROOM_LATLNG.lng + (0.5 + (1 * j)) * TILE_DEGREES,
+      CLASSROOM_LATLNG.lat + (0.5 + i) * TILE_DEGREES,
+      CLASSROOM_LATLNG.lng + (0.5 + j) * TILE_DEGREES,
     ]]),
   );
   const newCache: Cache = {
