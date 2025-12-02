@@ -26,5 +26,5 @@ Location-based game (like Pokemon Go) where players can navigate the real world 
 - [x] detect if cells are within 3 of active cell
 - [x] make some cells caches and some cells not with luck
 - [x] make tooltip display cache number
-- [ ] make text display player status on page
+- [x] make text display player status on page
 - [ ] bind function that picks up token and displays held

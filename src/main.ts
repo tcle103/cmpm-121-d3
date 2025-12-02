@@ -11,6 +11,8 @@ import "./_leafletWorkaround.ts"; // fixes for missing Leaflet images
 // Import our luck function
 import luck from "./_luck.ts";
 
+const playerVal = 0;
+
 const mapDiv = document.createElement("div");
 mapDiv.id = "map";
 document.body.append(mapDiv);
@@ -74,6 +76,12 @@ playerMarker.addTo(map);
 
 const grid = leaflet.featureGroup();
 grid.addTo(map);
+
+function setStatus() {
+  if (playerVal < 1) {
+    statusPanelDiv.innerHTML = "Nothing in hand. Time to explore!";
+  }
+}
 
 function getDist(pt1: Pt, pt2: Pt) {
   const x1 = Math.abs(pt1.x);
@@ -159,3 +167,5 @@ cacheList.forEach((cache) => {
     }
   }
 });
+
+setStatus();
