@@ -22,10 +22,13 @@ const NEIGHBORHOOD_SIZE = 11;
 //const CACHE_SPAWN_PROBABILITY = 0.1;
 const TILE_DEGREES = 1e-4;
 
+const DEF_COL = "#3388ff";
+
 interface Cache {
   interactible: boolean;
   location: Pt;
   rectangle: leaflet.Rectangle;
+  cache: boolean;
 }
 
 interface Pt {
@@ -58,6 +61,14 @@ playerMarker.addTo(map);
 const grid = leaflet.featureGroup();
 grid.addTo(map);
 
+function drawRect(cache: Cache) {
+  if (cache.interactible) {
+    cache.rectangle.setStyle({ color: DEF_COL, fillColor: DEF_COL });
+  } else {
+    cache.rectangle.setStyle({ color: "grey", fillColor: "lightgrey" });
+  }
+}
+
 function drawCache(i: number, j: number) {
   const rect = leaflet.rectangle(
     leaflet.latLngBounds([[
@@ -68,14 +79,17 @@ function drawCache(i: number, j: number) {
       CLASSROOM_LATLNG.lng + (0.5 + (1 * j)) * TILE_DEGREES,
     ]]),
   );
+  console.log(rect);
   const newCache: Cache = {
     interactible: false,
     location: { x: i, y: j },
     rectangle: rect,
+    cache: true,
   };
   cacheList.push(newCache);
   grid.addLayer(rect);
   rect.bindTooltip("im generated");
+  drawRect(newCache);
 }
 
 for (let i = -NEIGHBORHOOD_SIZE; i < NEIGHBORHOOD_SIZE; ++i) {
