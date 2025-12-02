@@ -18,9 +18,22 @@ const CLASSROOM_LATLNG = leaflet.latLng(
   -122.05703507501151,
 );
 
-const NEIGHBORHOOD_SIZE = 8;
+const NEIGHBORHOOD_SIZE = 11;
 //const CACHE_SPAWN_PROBABILITY = 0.1;
 const TILE_DEGREES = 1e-4;
+
+interface Cache {
+  interactible: boolean;
+  location: Pt;
+  rectangle: leaflet.Rectangle;
+}
+
+interface Pt {
+  x: number;
+  y: number;
+}
+
+const cacheList: Cache[] = [];
 
 const map = leaflet.map("map", {
   center: CLASSROOM_LATLNG,
@@ -55,6 +68,12 @@ function drawCache(i: number, j: number) {
       CLASSROOM_LATLNG.lng + (0.5 + (1 * j)) * TILE_DEGREES,
     ]]),
   );
+  const newCache: Cache = {
+    interactible: false,
+    location: { x: i, y: j },
+    rectangle: rect,
+  };
+  cacheList.push(newCache);
   grid.addLayer(rect);
   rect.bindTooltip("im generated");
 }
