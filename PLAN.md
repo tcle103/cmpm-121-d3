@@ -29,3 +29,4 @@ Location-based game (like Pokemon Go) where players can navigate the real world 
 - [x] make text display player status on page
 - [x] bind function that picks up token, make player status update
 - [x] implement check and interaction for when player is already holding a token
+- [x] implement win con/token number check.
