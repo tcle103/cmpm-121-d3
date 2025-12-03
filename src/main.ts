@@ -28,19 +28,26 @@ document.body.append(controlsDiv);
 const upMoveButt = document.createElement("button");
 upMoveButt.innerHTML = "^";
 controlsDiv.append(upMoveButt);
-controlsDiv.innerHTML += "<br>";
 const leftMoveButt = document.createElement("button");
 leftMoveButt.innerHTML = "<";
 leftMoveButt.addEventListener("click", () => {
   movePlayer("LEFT");
-  updateCaches();
 });
 controlsDiv.append(leftMoveButt);
 const downMoveButt = document.createElement("button");
 downMoveButt.innerHTML = "v";
+downMoveButt.addEventListener("click", () => {
+  movePlayer("DOWN");
+});
 controlsDiv.append(downMoveButt);
 const rightMoveButt = document.createElement("button");
 rightMoveButt.innerHTML = ">";
+upMoveButt.addEventListener("click", () => {
+  movePlayer("UP");
+});
+rightMoveButt.addEventListener("click", () => {
+  movePlayer("RIGHT");
+});
 controlsDiv.append(rightMoveButt);
 
 // Our classroom location
@@ -72,7 +79,7 @@ interface Pt {
   y: number;
 }
 
-let currCache: Pt = { x: 0, y: 0 };
+const currCache: Pt = { x: 0, y: 0 };
 
 const cacheList: Cache[] = [];
 
@@ -111,10 +118,10 @@ function setStatus() {
 }
 
 function getDist(pt1: Pt, pt2: Pt) {
-  const x1 = Math.abs(pt1.x);
-  const x2 = Math.abs(pt2.x);
-  const y1 = Math.abs(pt1.y);
-  const y2 = Math.abs(pt2.y);
+  const x1 = pt1.x;
+  const x2 = pt2.x;
+  const y1 = pt1.y;
+  const y2 = pt2.y;
   return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
 }
 
@@ -205,18 +212,20 @@ for (let i = -NEIGHBORHOOD_SIZE; i < NEIGHBORHOOD_SIZE; ++i) {
   }
 }
 
-function updateCaches() {
+function updateCaches(pt: Pt) {
   cacheList.forEach((cache) => {
     if (inCache(cache)) {
-      currCache = cache.location;
       cache.interactible = true;
       drawRect(cache);
       cache.rectangle.bringToFront();
     } else {
-      if (getDist(cache.location, currCache) <= 2) {
+      if (getDist(cache.location, pt) <= 2) {
         cache.interactible = true;
         drawRect(cache);
         cache.rectangle.bringToFront();
+      } else {
+        cache.interactible = false;
+        drawRect(cache);
       }
     }
   });
@@ -227,19 +236,24 @@ function movePlayer(dir: string) {
   switch (dir) {
     case "UP":
       newLoc.lat += TILE_DEGREES;
+      currCache.x += 1;
       break;
     case "LEFT":
       newLoc.lng -= TILE_DEGREES;
+      currCache.y -= 1;
       break;
     case "DOWN":
-      newLoc.lat = TILE_DEGREES;
+      newLoc.lat -= TILE_DEGREES;
+      currCache.x -= 1;
       break;
     case "RIGHT":
-      newLoc.lng -= TILE_DEGREES;
+      newLoc.lng += TILE_DEGREES;
+      currCache.y += 1;
       break;
   }
   playerMarker.setLatLng(newLoc);
+  updateCaches(currCache);
 }
 
 setStatus();
-updateCaches();
+updateCaches(currCache);

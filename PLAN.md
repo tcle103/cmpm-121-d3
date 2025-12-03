@@ -35,4 +35,4 @@ Location-based game (like Pokemon Go) where players can navigate the real world 
 
 - [x] add buttons to interface for moving character
 - [x] implement player movement by grid space
-- [ ] make sure that whenever player moves grid interactibility is updated
+- [x] make sure that whenever player moves grid interactibility is updated
