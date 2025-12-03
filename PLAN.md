@@ -30,3 +30,9 @@ Location-based game (like Pokemon Go) where players can navigate the real world 
 - [x] bind function that picks up token, make player status update
 - [x] implement check and interaction for when player is already holding a token
 - [x] implement win con/token number check.
+
+### D3.b: Globe-spanning Gameplay
+
+- [ ] add buttons to interface for moving character
+- [ ] implement player movement by grid space
+- [ ] make sure that whenever player moves grid interactibility is updated
