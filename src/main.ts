@@ -21,6 +21,24 @@ const statusPanelDiv = document.createElement("div");
 statusPanelDiv.id = "statusPanel";
 document.body.append(statusPanelDiv);
 
+const controlsDiv = document.createElement("div");
+controlsDiv.id = "controls";
+document.body.append(controlsDiv);
+
+const upMoveButt = document.createElement("button");
+upMoveButt.innerHTML = "^";
+controlsDiv.append(upMoveButt);
+controlsDiv.innerHTML += "<br>";
+const leftMoveButt = document.createElement("button");
+leftMoveButt.innerHTML = "<";
+controlsDiv.append(leftMoveButt);
+const downMoveButt = document.createElement("button");
+downMoveButt.innerHTML = "v";
+controlsDiv.append(downMoveButt);
+const rightMoveButt = document.createElement("button");
+rightMoveButt.innerHTML = ">";
+controlsDiv.append(rightMoveButt);
+
 // Our classroom location
 const CLASSROOM_LATLNG = leaflet.latLng(
   36.997936938057016,
