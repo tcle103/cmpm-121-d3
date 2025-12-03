@@ -132,44 +132,47 @@ function format(str: string, ...values: string[]) {
   });
 }
 
-function drawRect(cache: Cache) {
+function updateRectStyle(cache: Cache) {
   if (!cache.cache) {
     cache.rectangle.setStyle({ opacity: 0.0, fillOpacity: 0.0 });
     cache.rectangle.unbindTooltip();
+    cache.rectangle.off("click");
     return;
   }
   const formatStr = format(cacheStr, cache.pointVal.toString());
   if (cache.interactible) {
     cache.rectangle.setStyle({ color: DEF_COL, fillColor: DEF_COL });
     cache.rectangle.bindTooltip(formatStr + " Click to interact!");
-    cache.rectangle.on("click", () => {
-      if (playerVal < 1) {
-        playerVal = cache.pointVal;
-        cache.cache = false;
-        setStatus();
-      } else if (cache.pointVal == playerVal) {
-        statusPanelDiv.innerHTML =
-          `Deposited ${cache.pointVal} into cache, making a ${
-            cache.pointVal * 2
-          } token!`;
-        setTimeout(() => {
-          setStatus();
-        }, 1500);
-        cache.pointVal += playerVal;
-        playerVal = 0;
-      } else {
-        statusPanelDiv.innerHTML =
-          "Already holding a token! Nothing happened...";
-        setTimeout(() => {
-          setStatus();
-        }, 1500);
-      }
-      drawRect(cache);
-    });
   } else {
     cache.rectangle.setStyle({ color: "grey", fillColor: "lightgrey" });
     cache.rectangle.bindTooltip(formatStr + " Need to get closer...");
   }
+}
+
+function setInteractible(cache: Cache) {
+  cache.rectangle.on("click", () => {
+    if (playerVal < 1) {
+      playerVal = cache.pointVal;
+      cache.cache = false;
+      setStatus();
+    } else if (cache.pointVal == playerVal) {
+      statusPanelDiv.innerHTML =
+        `Deposited ${cache.pointVal} into cache, making a ${
+          cache.pointVal * 2
+        } token!`;
+      setTimeout(() => {
+        setStatus();
+      }, 1500);
+      cache.pointVal += playerVal;
+      playerVal = 0;
+    } else {
+      statusPanelDiv.innerHTML = "Already holding a token! Nothing happened...";
+      setTimeout(() => {
+        setStatus();
+      }, 1500);
+    }
+    updateRectStyle(cache);
+  });
 }
 
 function drawCache(i: number, j: number) {
@@ -199,7 +202,7 @@ function drawCache(i: number, j: number) {
   }
   cacheList.push(newCache);
   grid.addLayer(rect);
-  drawRect(newCache);
+  updateRectStyle(newCache);
 }
 
 function inCache(cache: Cache) {
@@ -216,16 +219,19 @@ function updateCaches(pt: Pt) {
   cacheList.forEach((cache) => {
     if (inCache(cache)) {
       cache.interactible = true;
-      drawRect(cache);
+      setInteractible(cache);
+      updateRectStyle(cache);
       cache.rectangle.bringToFront();
     } else {
       if (getDist(cache.location, pt) <= 2) {
         cache.interactible = true;
-        drawRect(cache);
+        setInteractible(cache);
+        updateRectStyle(cache);
         cache.rectangle.bringToFront();
       } else {
         cache.interactible = false;
-        drawRect(cache);
+        cache.rectangle.off("click");
+        updateRectStyle(cache);
       }
     }
   });
