@@ -33,6 +33,6 @@ Location-based game (like Pokemon Go) where players can navigate the real world 
 
 ### D3.b: Globe-spanning Gameplay
 
-- [ ] add buttons to interface for moving character
+- [x] add buttons to interface for moving character
 - [ ] implement player movement by grid space
 - [ ] make sure that whenever player moves grid interactibility is updated
