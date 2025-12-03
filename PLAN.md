@@ -36,3 +36,7 @@ Location-based game (like Pokemon Go) where players can navigate the real world 
 - [x] add buttons to interface for moving character
 - [x] implement player movement by grid space
 - [x] make sure that whenever player moves grid interactibility is updated
+- [ ] draw grid to fill to screen view instead of neighborhood size
+- [ ] detect when new grids need to be drawn (i.e. edge of curr grids are visible)
+- [ ] redraw grid to fill screen when happens
+- [ ] make caches stateless and "despawn" when off screen
