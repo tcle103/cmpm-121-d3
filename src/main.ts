@@ -31,6 +31,10 @@ controlsDiv.append(upMoveButt);
 controlsDiv.innerHTML += "<br>";
 const leftMoveButt = document.createElement("button");
 leftMoveButt.innerHTML = "<";
+leftMoveButt.addEventListener("click", () => {
+  movePlayer("LEFT");
+  updateCaches();
+});
 controlsDiv.append(leftMoveButt);
 const downMoveButt = document.createElement("button");
 downMoveButt.innerHTML = "v";
@@ -201,19 +205,41 @@ for (let i = -NEIGHBORHOOD_SIZE; i < NEIGHBORHOOD_SIZE; ++i) {
   }
 }
 
-cacheList.forEach((cache) => {
-  if (inCache(cache)) {
-    currCache = cache.location;
-    cache.interactible = true;
-    drawRect(cache);
-    cache.rectangle.bringToFront();
-  } else {
-    if (getDist(cache.location, currCache) <= 2) {
+function updateCaches() {
+  cacheList.forEach((cache) => {
+    if (inCache(cache)) {
+      currCache = cache.location;
       cache.interactible = true;
       drawRect(cache);
       cache.rectangle.bringToFront();
+    } else {
+      if (getDist(cache.location, currCache) <= 2) {
+        cache.interactible = true;
+        drawRect(cache);
+        cache.rectangle.bringToFront();
+      }
     }
+  });
+}
+
+function movePlayer(dir: string) {
+  const newLoc = playerMarker.getLatLng();
+  switch (dir) {
+    case "UP":
+      newLoc.lat += TILE_DEGREES;
+      break;
+    case "LEFT":
+      newLoc.lng -= TILE_DEGREES;
+      break;
+    case "DOWN":
+      newLoc.lat = TILE_DEGREES;
+      break;
+    case "RIGHT":
+      newLoc.lng -= TILE_DEGREES;
+      break;
   }
-});
+  playerMarker.setLatLng(newLoc);
+}
 
 setStatus();
+updateCaches();
