@@ -58,7 +58,7 @@ const map = leaflet.map("map", {
   center: CLASSROOM_LATLNG,
   zoom: 20,
   minZoom: 10,
-  maxZoom: 30,
+  maxZoom: 22,
 });
 
 leaflet.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
