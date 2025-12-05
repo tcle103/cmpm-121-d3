@@ -44,10 +44,10 @@ const cacheSet = {
   cacheStr: cacheStr,
 };
 
-const _cacheCaretaker = {
+const c: cacheCaretaker = {
   cacheMap: new Map(),
   get: (c: cacheCaretaker, pt: Pt) => {
-    const cache: activeCache | undefined = c.cacheMap.get(pt);
+    const cache: activeCache | undefined = c.cacheMap.get(pt.toString(pt));
     if (cache) {
       return cache;
     } else {
@@ -55,7 +55,7 @@ const _cacheCaretaker = {
     }
   },
   set: (c: cacheCaretaker, pt: Pt, cache: activeCache) => {
-    c.cacheMap.set(pt, cache);
+    c.cacheMap.set(pt.toString(pt), cache);
   },
 };
 
@@ -82,16 +82,17 @@ interface activeCache {
 interface Pt {
   lat: number;
   lng: number;
+  toString: (pt: Pt) => string;
 }
 
 // Caretaker interface for memento pattern
 interface cacheCaretaker {
-  cacheMap: Map<Pt, activeCache>;
-  get: (c: cacheCaretaker, pt: Pt) => activeCache;
+  cacheMap: Map<string, activeCache>;
+  get: (c: cacheCaretaker, pt: Pt) => activeCache | undefined;
   set: (c: cacheCaretaker, pt: Pt, cache: activeCache) => void;
 }
 
-const currCache: Pt = { lat: 0, lng: 0 };
+const currCache: Pt = { lat: 0, lng: 0, toString: ptToString };
 const cacheList: activeCache[] = [];
 
 // HTML set-up
@@ -218,6 +219,10 @@ function getJBounds(center: leaflet.LatLng, bounds: leaflet.LatLngBounds) {
   return [j2, j1];
 }
 
+function ptToString(pt: Pt) {
+  return `${pt.lat},${pt.lng}`;
+}
+
 // Player state update functions
 // updates or updates stuff rep. player state
 function setStatus() {
@@ -286,20 +291,28 @@ function drawCache(i: number, j: number, cacheSet: Cache) {
       CLASSROOM_LATLNG.lng + (0.5 + j) * cacheSet.size,
     ]]),
   );
-  const newCache: activeCache = {
+  let newCache: activeCache = {
     interactible: false,
-    location: { lat: i, lng: j },
+    location: { lat: i, lng: j, toString: ptToString },
     rectangle: rect,
     cache: false,
     pointVal: 0,
   };
-  if (luck([i, j].toString()) < cacheSet.spawnProbability) {
-    newCache.cache = true;
-    // Each cache has a random point value, mutable by the player
-    const pointValue = Math.floor(
-      luck([i, j, "initialValue"].toString()) * SPAWNABLE_VALUE_INDEX_COUNT,
-    );
-    newCache.pointVal = POSS_VALS[pointValue];
+  // see if caretaker has a saved state for particular position
+  // if so restore state, else generate using (i,j) as seed to luck
+  const memento: activeCache | undefined = c.get(c, newCache.location);
+  console.log(memento);
+  if (memento) {
+    newCache = memento;
+  } else {
+    if (luck([i, j].toString()) < cacheSet.spawnProbability) {
+      newCache.cache = true;
+      // Each cache has a random point value, mutable by the player
+      const pointValue = Math.floor(
+        luck([i, j, "initialValue"].toString()) * SPAWNABLE_VALUE_INDEX_COUNT,
+      );
+      newCache.pointVal = POSS_VALS[pointValue];
+    }
   }
   cacheList.push(newCache);
   grid.addLayer(rect);
@@ -329,6 +342,9 @@ function setInteractible(cache: activeCache, cacheSet: Cache) {
       }, 1500);
     }
     updateRectStyle(cache, cacheSet);
+    // modified/player interacted, so save state with caretaker
+    c.set(c, cache.location, cache);
+    console.log(c.cacheMap);
   });
 }
 
