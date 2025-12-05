@@ -48,4 +48,4 @@ Location-based game (like Pokemon Go) where players can navigate the real world 
 - [x] update all cache functions to take the immutable shared class
 - [x] create a map for caches that have been modified for memento pattern
 - [x] create caretaker interface for memento pattern
-- [ ] modify drawCache to interact with stored caches to draw using data from memento
+- [x] modify drawCache to interact with stored caches to draw using data from memento

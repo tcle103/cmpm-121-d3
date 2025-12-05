@@ -193,7 +193,6 @@ function getIBounds(center: leaflet.LatLng, bounds: leaflet.LatLngBounds) {
   // starts at center of map currently
   let i1: number = centerToIJ(center)[0];
   let i2: number = centerToIJ(center)[0];
-  console.log(center);
   while (iJToCenter(i1, 0).lat < bounds.getNorth()) {
     i1 += 1;
   }
@@ -301,7 +300,6 @@ function drawCache(i: number, j: number, cacheSet: Cache) {
   // see if caretaker has a saved state for particular position
   // if so restore state, else generate using (i,j) as seed to luck
   const memento: activeCache | undefined = c.get(c, newCache.location);
-  console.log(memento);
   if (memento) {
     newCache = memento;
   } else {
@@ -315,7 +313,7 @@ function drawCache(i: number, j: number, cacheSet: Cache) {
     }
   }
   cacheList.push(newCache);
-  grid.addLayer(rect);
+  grid.addLayer(newCache.rectangle);
   updateRectStyle(newCache, cacheSet);
 }
 
@@ -344,7 +342,6 @@ function setInteractible(cache: activeCache, cacheSet: Cache) {
     updateRectStyle(cache, cacheSet);
     // modified/player interacted, so save state with caretaker
     c.set(c, cache.location, cache);
-    console.log(c.cacheMap);
   });
 }
 
@@ -356,7 +353,6 @@ function redrawCaches(cacheSet: Cache) {
   const ibounds = getIBounds(center, bounds);
   const jbounds = getJBounds(center, bounds);
 
-  console.log(ibounds, jbounds);
   for (let i = ibounds[0]; i < ibounds[1]; ++i) {
     for (let j = jbounds[0]; j < jbounds[1]; ++j) {
       drawCache(i, j, cacheSet);
