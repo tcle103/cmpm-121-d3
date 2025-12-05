@@ -408,6 +408,9 @@ if ("geolocation" in navigator) {
           ),
         );
         console.log(playerMarker.getLatLng());
+        const posToIJ = centerToIJ(playerMarker.getLatLng());
+        currCache.lat = posToIJ[0];
+        currCache.lng = posToIJ[1];
         cacheList.forEach((cache) => {
           updateCaches(currCache, cache, cacheSet);
         });
