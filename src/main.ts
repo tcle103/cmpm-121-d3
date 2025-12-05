@@ -397,7 +397,7 @@ if ("geolocation" in navigator) {
   if (!buttonControls) {
     navigator.geolocation.watchPosition((pos) => {
       if (lastPos) {
-        const posDiffLat = 1;
+        const posDiffLat = lastPos.coords.latitude - pos.coords.latitude;
         const posDiffLng = lastPos.coords.longitude - pos.coords.longitude;
         const currPos = playerMarker.getLatLng();
         console.log(posDiffLat, posDiffLng);
