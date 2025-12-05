@@ -397,14 +397,14 @@ if ("geolocation" in navigator) {
   if (!buttonControls) {
     navigator.geolocation.watchPosition((pos) => {
       if (lastPos) {
-        const posDiffLat = lastPos.coords.latitude - pos.coords.latitude;
+        const posDiffLat = 1;
         const posDiffLng = lastPos.coords.longitude - pos.coords.longitude;
         const currPos = playerMarker.getLatLng();
         console.log(posDiffLat, posDiffLng);
         playerMarker.setLatLng(
           leaflet.latLng(
-            currPos.lat + posDiffLat * 1000,
-            currPos.lng + posDiffLng * 1000,
+            currPos.lat + posDiffLat,
+            currPos.lng + posDiffLng,
           ),
         );
         console.log(playerMarker.getLatLng());
