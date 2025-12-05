@@ -35,8 +35,6 @@ const POSS_VALS: number[] = [1, 2, 4, 8, 16, 32, 64, 128, 256];
 const SPAWNABLE_VALUE_INDEX_COUNT: number = 5;
 const cacheStr = "A cache! It holds a {0} token.";
 
-const _modCaches: Map<Pt, activeCache> = new Map();
-
 const cacheSet = {
   spawnProbability: CACHE_SPAWN_PROBABILITY,
   size: TILE_DEGREES,
@@ -44,6 +42,21 @@ const cacheSet = {
   inactiveColor: "lightgrey",
   possVals: POSS_VALS,
   cacheStr: cacheStr,
+};
+
+const _cacheCaretaker = {
+  cacheMap: new Map(),
+  get: (c: cacheCaretaker, pt: Pt) => {
+    const cache: activeCache | undefined = c.cacheMap.get(pt);
+    if (cache) {
+      return cache;
+    } else {
+      return undefined;
+    }
+  },
+  set: (c: cacheCaretaker, pt: Pt, cache: activeCache) => {
+    c.cacheMap.set(pt, cache);
+  },
 };
 
 // Interface definitions
@@ -69,6 +82,12 @@ interface activeCache {
 interface Pt {
   lat: number;
   lng: number;
+}
+
+interface cacheCaretaker {
+  cacheMap: Map<Pt, activeCache>;
+  get: (c: cacheCaretaker, pt: Pt) => activeCache;
+  set: (c: cacheCaretaker, pt: Pt, cache: activeCache) => void;
 }
 
 const currCache: Pt = { lat: 0, lng: 0 };
