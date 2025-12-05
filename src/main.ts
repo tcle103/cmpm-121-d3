@@ -56,7 +56,6 @@ const CLASSROOM_LATLNG = leaflet.latLng(
   -122.05703507501151,
 );
 
-const NEIGHBORHOOD_SIZE = 11;
 const CACHE_SPAWN_PROBABILITY = 0.1;
 const TILE_DEGREES = 1e-4;
 
@@ -209,11 +208,11 @@ function inCache(cache: Cache) {
   return cache.rectangle.getBounds().contains(playerMarker.getLatLng());
 }
 
-for (let i = -NEIGHBORHOOD_SIZE; i < NEIGHBORHOOD_SIZE; ++i) {
-  for (let j = -NEIGHBORHOOD_SIZE; j < NEIGHBORHOOD_SIZE; ++j) {
-    drawCache(i, j);
-  }
-}
+// for (let i = -NEIGHBORHOOD_SIZE; i < NEIGHBORHOOD_SIZE; ++i) {
+//   for (let j = -NEIGHBORHOOD_SIZE; j < NEIGHBORHOOD_SIZE; ++j) {
+//     drawCache(i, j);
+//   }
+// }
 
 function iJToCenter(i: number, j: number) {
   return leaflet.latLng([
@@ -225,16 +224,27 @@ function iJToCenter(i: number, j: number) {
 function centerToIJ(center: leaflet.LatLng) {
   const latDiff: number = CLASSROOM_LATLNG.lat - center.lat;
   const lngDiff: number = CLASSROOM_LATLNG.lng - center.lng;
-  console.log(latDiff);
-  return [latDiff / TILE_DEGREES, lngDiff / TILE_DEGREES];
+  return [
+    Math.round(latDiff / TILE_DEGREES),
+    Math.round(lngDiff / TILE_DEGREES),
+  ];
 }
 
 function redrawCaches() {
   cacheList.length = 0;
+  grid.clearLayers();
   const center = map.getCenter();
   const bounds = map.getBounds();
   const ibounds = getIBounds(center, bounds);
   const jbounds = getJBounds(center, bounds);
+
+  console.log(ibounds, jbounds);
+  for (let i = ibounds[0]; i < ibounds[1]; ++i) {
+    for (let j = jbounds[0]; j < jbounds[1]; ++j) {
+      drawCache(i, j);
+    }
+  }
+  updateCaches(currCache);
 }
 
 function getIBounds(center: leaflet.LatLng, bounds: leaflet.LatLngBounds) {
@@ -242,13 +252,14 @@ function getIBounds(center: leaflet.LatLng, bounds: leaflet.LatLngBounds) {
   // starts at center of map currently
   let i1: number = centerToIJ(center)[0];
   let i2: number = centerToIJ(center)[0];
+  console.log(center);
   while (iJToCenter(i1, 0).lat < bounds.getNorth()) {
     i1 += 1;
   }
   while (iJToCenter(i2, 0).lat > bounds.getSouth()) {
     i2 -= 1;
   }
-  return [-i1, -i2];
+  return [i2, i1];
 }
 
 function getJBounds(center: leaflet.LatLng, bounds: leaflet.LatLngBounds) {
@@ -264,12 +275,11 @@ function getJBounds(center: leaflet.LatLng, bounds: leaflet.LatLngBounds) {
   while (iJToCenter(0, j2).lng > bounds.getWest()) {
     j2 -= 1;
   }
-  console.log(bounds.getEast(), bounds.getWest());
-  return [-j1, -j2];
+  return [j2, j1];
 }
 
-map.on("moveend", (e) => {
-  console.log(e);
+map.on("moveend", () => {
+  redrawCaches();
 });
 
 function updateCaches(pt: Pt) {
@@ -295,32 +305,23 @@ function updateCaches(pt: Pt) {
 }
 
 function movePlayer(dir: string) {
-  const newLoc = playerMarker.getLatLng();
   switch (dir) {
     case "UP":
-      newLoc.lat += TILE_DEGREES;
       currCache.lat += 1;
       break;
     case "LEFT":
-      newLoc.lng -= TILE_DEGREES;
       currCache.lng -= 1;
       break;
     case "DOWN":
-      newLoc.lat -= TILE_DEGREES;
       currCache.lat -= 1;
       break;
     case "RIGHT":
-      newLoc.lng += TILE_DEGREES;
       currCache.lng += 1;
       break;
   }
-  playerMarker.setLatLng(newLoc);
+  playerMarker.setLatLng(iJToCenter(currCache.lat, currCache.lng));
   updateCaches(currCache);
 }
 
 setStatus();
-updateCaches(currCache);
-console.log(
-  getIBounds(map.getCenter(), map.getBounds()),
-  getJBounds(map.getCenter(), map.getBounds()),
-);
+redrawCaches();
