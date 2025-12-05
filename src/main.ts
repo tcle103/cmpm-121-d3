@@ -221,7 +221,9 @@ function movePlayer(dir: string) {
       break;
   }
   playerMarker.setLatLng(iJToCenter(currCache.lat, currCache.lng));
-  updateCaches(currCache);
+  cacheList.forEach((cache) => {
+    updateCaches(currCache, cache);
+  });
 }
 
 // Cache drawing and update functions
@@ -295,29 +297,29 @@ function redrawCaches() {
       drawCache(i, j);
     }
   }
-  updateCaches(currCache);
+  cacheList.forEach((cache) => {
+    updateCaches(currCache, cache);
+  });
 }
 
-function updateCaches(pt: Pt) {
-  cacheList.forEach((cache) => {
-    if (inCache(cache)) {
+function updateCaches(pt: Pt, cache: Cache) {
+  if (inCache(cache)) {
+    cache.interactible = true;
+    setInteractible(cache);
+    updateRectStyle(cache);
+    cache.rectangle.bringToFront();
+  } else {
+    if (getDist(cache.location, pt) <= 2) {
       cache.interactible = true;
       setInteractible(cache);
       updateRectStyle(cache);
       cache.rectangle.bringToFront();
     } else {
-      if (getDist(cache.location, pt) <= 2) {
-        cache.interactible = true;
-        setInteractible(cache);
-        updateRectStyle(cache);
-        cache.rectangle.bringToFront();
-      } else {
-        cache.interactible = false;
-        cache.rectangle.off("click");
-        updateRectStyle(cache);
-      }
+      cache.interactible = false;
+      cache.rectangle.off("click");
+      updateRectStyle(cache);
     }
-  });
+  }
 }
 
 // Start game
