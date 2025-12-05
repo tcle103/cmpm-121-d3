@@ -384,5 +384,12 @@ function updateCaches(pt: Pt, cache: activeCache, cacheSet: Cache) {
 }
 
 // Start game
+if ("geolocation" in navigator) {
+  /* geolocation is available */
+  console.log("yahooo");
+} else {
+  /* geolocation IS NOT available */
+  console.log("pass");
+}
 setStatus();
 redrawCaches(cacheSet);
