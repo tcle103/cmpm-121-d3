@@ -53,4 +53,6 @@ Location-based game (like Pokemon Go) where players can navigate the real world 
 ### D3.d: Gameplay Across Real-world Space and Time
 
 - [x] test access to the geolocation api
-- [ ] see how watchPosition behaves
+- [x] see how watchPosition behaves
+- [ ] reposition player marker based on watchPosition
+- [ ] make switching happen between buttons and geolocation

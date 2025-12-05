@@ -387,6 +387,9 @@ function updateCaches(pt: Pt, cache: activeCache, cacheSet: Cache) {
 if ("geolocation" in navigator) {
   /* geolocation is available */
   console.log("yahooo");
+  navigator.geolocation.watchPosition((pos) => {
+    console.log(pos);
+  });
 } else {
   /* geolocation IS NOT available */
   console.log("pass");
