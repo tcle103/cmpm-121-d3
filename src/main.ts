@@ -396,16 +396,19 @@ if ("geolocation" in navigator) {
   });
   if (!buttonControls) {
     navigator.geolocation.watchPosition((pos) => {
-      const posDiffLat = lastPos.coords.latitude - pos.coords.latitude;
-      const posDiffLng = lastPos.coords.longitude - pos.coords.longitude;
-      const currPos = playerMarker.getLatLng();
-      console.log(posDiffLat, posDiffLng);
-      playerMarker.setLatLng(
-        leaflet.latLng(
-          currPos.lat + posDiffLat * 10,
-          currPos.lng + posDiffLng * 10,
-        ),
-      );
+      if (lastPos) {
+        const posDiffLat = lastPos.coords.latitude - pos.coords.latitude;
+        const posDiffLng = lastPos.coords.longitude - pos.coords.longitude;
+        const currPos = playerMarker.getLatLng();
+        console.log(posDiffLat, posDiffLng);
+        playerMarker.setLatLng(
+          leaflet.latLng(
+            currPos.lat + posDiffLat * 10,
+            currPos.lng + posDiffLng * 10,
+          ),
+        );
+        console.log(playerMarker.getLatLng());
+      }
     });
   }
 } else {
