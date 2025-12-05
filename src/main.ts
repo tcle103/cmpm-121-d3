@@ -34,6 +34,8 @@ const DEF_COL = "#3388ff";
 const POSS_VALS: number[] = [1, 2, 4, 8, 16, 32, 64, 128, 256];
 const cacheStr = "A cache! It holds a {0} token.";
 
+const _modCaches: Map<Pt, activeCache> = new Map();
+
 // Interface definitions
 interface Cache {
   interactible: boolean;
@@ -41,6 +43,11 @@ interface Cache {
   rectangle: leaflet.Rectangle;
   cache: boolean;
   pointVal: number;
+}
+
+interface activeCache {
+  interactible: boolean;
+  cache: boolean;
 }
 
 interface Pt {
