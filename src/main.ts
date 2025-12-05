@@ -13,6 +13,7 @@ import luck from "./_luck.ts";
 
 // Variable definitions
 let playerVal = 0;
+let buttonControls = false;
 
 const mapDiv = document.createElement("div");
 const statusPanelDiv = document.createElement("div");
@@ -387,9 +388,23 @@ function updateCaches(pt: Pt, cache: activeCache, cacheSet: Cache) {
 if ("geolocation" in navigator) {
   /* geolocation is available */
   console.log("yahooo");
-  navigator.geolocation.watchPosition((pos) => {
-    console.log(pos);
+  let lastPos: GeolocationPosition;
+  navigator.geolocation.getCurrentPosition((pos) => {
+    lastPos = pos;
+  }, (_e) => {
+    buttonControls = true;
   });
+  if (!buttonControls) {
+    navigator.geolocation.watchPosition((pos) => {
+      const posDiffLat = lastPos.coords.latitude - pos.coords.latitude;
+      const posDiffLng = lastPos.coords.longitude - pos.coords.longitude;
+      const currPos = playerMarker.getLatLng();
+      console.log(posDiffLat, posDiffLng);
+      playerMarker.setLatLng(
+        leaflet.latLng(currPos.lat + posDiffLat, currPos.lng + posDiffLng),
+      );
+    });
+  }
 } else {
   /* geolocation IS NOT available */
   console.log("pass");
