@@ -32,22 +32,38 @@ const CACHE_SPAWN_PROBABILITY = 0.1;
 const TILE_DEGREES = 1e-4;
 const DEF_COL = "#3388ff";
 const POSS_VALS: number[] = [1, 2, 4, 8, 16, 32, 64, 128, 256];
+const SPAWNABLE_VALUE_INDEX_COUNT: number = 5;
 const cacheStr = "A cache! It holds a {0} token.";
 
 const _modCaches: Map<Pt, activeCache> = new Map();
 
+const cacheSet = {
+  spawnProbability: CACHE_SPAWN_PROBABILITY,
+  size: TILE_DEGREES,
+  activeColor: DEF_COL,
+  inactiveColor: "lightgrey",
+  possVals: POSS_VALS,
+  cacheStr: cacheStr,
+};
+
 // Interface definitions
+// flyweight cache implementation: immutable state interface
 interface Cache {
-  interactible: boolean;
-  location: Pt;
-  rectangle: leaflet.Rectangle;
-  cache: boolean;
-  pointVal: number;
+  spawnProbability: number;
+  size: number;
+  activeColor: string;
+  inactiveColor: string;
+  possVals: number[];
+  cacheStr: string;
 }
 
+// flyweight cache implementation: mutable state interface
 interface activeCache {
+  location: Pt;
   interactible: boolean;
   cache: boolean;
+  pointVal: number;
+  rectangle: leaflet.Rectangle;
 }
 
 interface Pt {
@@ -56,7 +72,7 @@ interface Pt {
 }
 
 const currCache: Pt = { lat: 0, lng: 0 };
-const cacheList: Cache[] = [];
+const cacheList: activeCache[] = [];
 
 // HTML set-up
 mapDiv.id = "map";
@@ -76,21 +92,21 @@ const map = leaflet.map("map", {
 upMoveButt.innerHTML = "^";
 controlsDiv.append(upMoveButt);
 upMoveButt.addEventListener("click", () => {
-  movePlayer("UP");
+  movePlayer("UP", cacheSet);
 });
 downMoveButt.innerHTML = "v";
 downMoveButt.addEventListener("click", () => {
-  movePlayer("DOWN");
+  movePlayer("DOWN", cacheSet);
 });
 controlsDiv.append(downMoveButt);
 leftMoveButt.innerHTML = "<";
 leftMoveButt.addEventListener("click", () => {
-  movePlayer("LEFT");
+  movePlayer("LEFT", cacheSet);
 });
 controlsDiv.append(leftMoveButt);
 rightMoveButt.innerHTML = ">";
 rightMoveButt.addEventListener("click", () => {
-  movePlayer("RIGHT");
+  movePlayer("RIGHT", cacheSet);
 });
 controlsDiv.append(rightMoveButt);
 
@@ -103,7 +119,7 @@ leaflet.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
   .addTo(map);
 
 map.on("moveend", () => {
-  redrawCaches();
+  redrawCaches(cacheSet);
 });
 
 // Add a marker to represent the player
@@ -131,7 +147,7 @@ function format(str: string, ...values: string[]) {
   });
 }
 
-function inCache(cache: Cache) {
+function inCache(cache: activeCache) {
   return cache.rectangle.getBounds().contains(playerMarker.getLatLng());
 }
 
@@ -195,7 +211,7 @@ function setStatus() {
   }
 }
 
-function updateRectStyle(cache: Cache) {
+function updateRectStyle(cache: activeCache, cacheSet: Cache) {
   if (!cache.cache) {
     cache.rectangle.setStyle({ opacity: 0.0, fillOpacity: 0.0 });
     cache.rectangle.unbindTooltip();
@@ -204,15 +220,21 @@ function updateRectStyle(cache: Cache) {
   }
   const formatStr = format(cacheStr, cache.pointVal.toString());
   if (cache.interactible) {
-    cache.rectangle.setStyle({ color: DEF_COL, fillColor: DEF_COL });
+    cache.rectangle.setStyle({
+      color: cacheSet.activeColor,
+      fillColor: cacheSet.activeColor,
+    });
     cache.rectangle.bindTooltip(formatStr + " Click to interact!");
   } else {
-    cache.rectangle.setStyle({ color: "grey", fillColor: "lightgrey" });
+    cache.rectangle.setStyle({
+      color: cacheSet.inactiveColor,
+      fillColor: cacheSet.inactiveColor,
+    });
     cache.rectangle.bindTooltip(formatStr + " Need to get closer...");
   }
 }
 
-function movePlayer(dir: string) {
+function movePlayer(dir: string, cacheSet: Cache) {
   switch (dir) {
     case "UP":
       currCache.lat += 1;
@@ -229,42 +251,42 @@ function movePlayer(dir: string) {
   }
   playerMarker.setLatLng(iJToCenter(currCache.lat, currCache.lng));
   cacheList.forEach((cache) => {
-    updateCaches(currCache, cache);
+    updateCaches(currCache, cache, cacheSet);
   });
 }
 
 // Cache drawing and update functions
-function drawCache(i: number, j: number) {
+function drawCache(i: number, j: number, cacheSet: Cache) {
   const rect = leaflet.rectangle(
     leaflet.latLngBounds([[
-      CLASSROOM_LATLNG.lat + (-0.5 + i) * TILE_DEGREES,
-      CLASSROOM_LATLNG.lng + (-0.5 + j) * TILE_DEGREES,
+      CLASSROOM_LATLNG.lat + (-0.5 + i) * cacheSet.size,
+      CLASSROOM_LATLNG.lng + (-0.5 + j) * cacheSet.size,
     ], [
-      CLASSROOM_LATLNG.lat + (0.5 + i) * TILE_DEGREES,
-      CLASSROOM_LATLNG.lng + (0.5 + j) * TILE_DEGREES,
+      CLASSROOM_LATLNG.lat + (0.5 + i) * cacheSet.size,
+      CLASSROOM_LATLNG.lng + (0.5 + j) * cacheSet.size,
     ]]),
   );
-  const newCache: Cache = {
+  const newCache: activeCache = {
     interactible: false,
     location: { lat: i, lng: j },
     rectangle: rect,
     cache: false,
     pointVal: 0,
   };
-  if (luck([i, j].toString()) < CACHE_SPAWN_PROBABILITY) {
+  if (luck([i, j].toString()) < cacheSet.spawnProbability) {
     newCache.cache = true;
     // Each cache has a random point value, mutable by the player
     const pointValue = Math.floor(
-      luck([i, j, "initialValue"].toString()) * 5,
+      luck([i, j, "initialValue"].toString()) * SPAWNABLE_VALUE_INDEX_COUNT,
     );
     newCache.pointVal = POSS_VALS[pointValue];
   }
   cacheList.push(newCache);
   grid.addLayer(rect);
-  updateRectStyle(newCache);
+  updateRectStyle(newCache, cacheSet);
 }
 
-function setInteractible(cache: Cache) {
+function setInteractible(cache: activeCache, cacheSet: Cache) {
   cache.rectangle.on("click", () => {
     if (playerVal < 1) {
       playerVal = cache.pointVal;
@@ -286,11 +308,11 @@ function setInteractible(cache: Cache) {
         setStatus();
       }, 1500);
     }
-    updateRectStyle(cache);
+    updateRectStyle(cache, cacheSet);
   });
 }
 
-function redrawCaches() {
+function redrawCaches(cacheSet: Cache) {
   cacheList.length = 0;
   grid.clearLayers();
   const center = map.getCenter();
@@ -301,34 +323,34 @@ function redrawCaches() {
   console.log(ibounds, jbounds);
   for (let i = ibounds[0]; i < ibounds[1]; ++i) {
     for (let j = jbounds[0]; j < jbounds[1]; ++j) {
-      drawCache(i, j);
+      drawCache(i, j, cacheSet);
     }
   }
   cacheList.forEach((cache) => {
-    updateCaches(currCache, cache);
+    updateCaches(currCache, cache, cacheSet);
   });
 }
 
-function updateCaches(pt: Pt, cache: Cache) {
+function updateCaches(pt: Pt, cache: activeCache, cacheSet: Cache) {
   if (inCache(cache)) {
     cache.interactible = true;
-    setInteractible(cache);
-    updateRectStyle(cache);
+    setInteractible(cache, cacheSet);
+    updateRectStyle(cache, cacheSet);
     cache.rectangle.bringToFront();
   } else {
     if (getDist(cache.location, pt) <= 2) {
       cache.interactible = true;
-      setInteractible(cache);
-      updateRectStyle(cache);
+      setInteractible(cache, cacheSet);
+      updateRectStyle(cache, cacheSet);
       cache.rectangle.bringToFront();
     } else {
       cache.interactible = false;
       cache.rectangle.off("click");
-      updateRectStyle(cache);
+      updateRectStyle(cache, cacheSet);
     }
   }
 }
 
 // Start game
 setStatus();
-redrawCaches();
+redrawCaches(cacheSet);
