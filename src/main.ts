@@ -401,7 +401,10 @@ if ("geolocation" in navigator) {
       const currPos = playerMarker.getLatLng();
       console.log(posDiffLat, posDiffLng);
       playerMarker.setLatLng(
-        leaflet.latLng(currPos.lat + posDiffLat, currPos.lng + posDiffLng),
+        leaflet.latLng(
+          currPos.lat + posDiffLat * 10,
+          currPos.lng + posDiffLng * 10,
+        ),
       );
     });
   }
