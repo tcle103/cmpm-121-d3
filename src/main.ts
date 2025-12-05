@@ -84,6 +84,7 @@ interface Pt {
   lng: number;
 }
 
+// Caretaker interface for memento pattern
 interface cacheCaretaker {
   cacheMap: Map<Pt, activeCache>;
   get: (c: cacheCaretaker, pt: Pt) => activeCache;
