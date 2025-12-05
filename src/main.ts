@@ -75,11 +75,11 @@ interface Cache {
 }
 
 interface Pt {
-  x: number;
-  y: number;
+  lat: number;
+  lng: number;
 }
 
-const currCache: Pt = { x: 0, y: 0 };
+const currCache: Pt = { lat: 0, lng: 0 };
 
 const cacheList: Cache[] = [];
 
@@ -118,10 +118,10 @@ function setStatus() {
 }
 
 function getDist(pt1: Pt, pt2: Pt) {
-  const x1 = pt1.x;
-  const x2 = pt2.x;
-  const y1 = pt1.y;
-  const y2 = pt2.y;
+  const x1 = pt1.lat;
+  const x2 = pt2.lat;
+  const y1 = pt1.lng;
+  const y2 = pt2.lng;
   return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
 }
 
@@ -187,7 +187,7 @@ function drawCache(i: number, j: number) {
   );
   const newCache: Cache = {
     interactible: false,
-    location: { x: i, y: j },
+    location: { lat: i, lng: j },
     rectangle: rect,
     cache: false,
     pointVal: 0,
@@ -214,6 +214,91 @@ for (let i = -NEIGHBORHOOD_SIZE; i < NEIGHBORHOOD_SIZE; ++i) {
     drawCache(i, j);
   }
 }
+
+function iJToCenter(i: number, j: number) {
+  return leaflet.latLng([
+    CLASSROOM_LATLNG.lat + i * TILE_DEGREES,
+    CLASSROOM_LATLNG.lng + j * TILE_DEGREES,
+  ]);
+}
+
+function _redrawCaches() {
+  cacheList.length = 0;
+  const center = map.getCenter();
+  const bounds = map.getBounds();
+  const _ibounds = getIBounds(center, bounds);
+  const _jbounds = getJBounds(center, bounds);
+}
+
+function getIBounds(center: leaflet.LatLng, bounds: leaflet.LatLngBounds) {
+  // direction to move i1 or i2 in
+  // towards the bounds of the view
+  let i1Dir: number = 1;
+  let i2Dir: number = 1;
+
+  if (bounds.contains(center)) {
+    // center is inside the bounds
+    i1Dir = -1;
+  } else if (center.lat < bounds.getNorth()) {
+    // if new map view is below the center (i < 0)
+    i1Dir = -1;
+    i2Dir = -1;
+  }
+  // north and south bounds of map in i
+  let i1: number = 0;
+  let i2: number = 0;
+  // move north and south bounds of map in i until
+  // they are within the bounds of the map currently
+  while (
+    iJToCenter(i1, 0).lat > bounds.getNorth() ||
+    iJToCenter(i2, 0).lat < bounds.getSouth()
+  ) {
+    if (iJToCenter(i1, 0).lat > bounds.getNorth()) {
+      i1 += i1Dir;
+    }
+    if (iJToCenter(i2, 0).lat < bounds.getSouth()) {
+      i2 += i2Dir;
+    }
+  }
+  return [i1, i2];
+}
+
+function getJBounds(center: leaflet.LatLng, bounds: leaflet.LatLngBounds) {
+  // direction to move j1 or j2 in
+  // towards the bounds of the view
+  let j1Dir: number = 1;
+  let j2Dir: number = 1;
+
+  if (bounds.contains(center)) {
+    // center is inside the bounds
+    j1Dir = -1;
+  } else if (center.lat > bounds.getEast()) {
+    // if new map view is right the center (i < 0)
+    j1Dir = -1;
+    j2Dir = -1;
+  }
+  // west and east bounds of map in j
+  let j1: number = 0;
+  let j2: number = 0;
+  // move east and west bounds of map in i until
+  // they are within the bounds of the map currently
+  while (
+    iJToCenter(0, j1).lng > bounds.getWest() ||
+    iJToCenter(0, j2).lng < bounds.getEast()
+  ) {
+    if (iJToCenter(0, j1).lng > bounds.getWest()) {
+      j1 += j1Dir;
+    }
+    if (iJToCenter(0, j2).lng < bounds.getEast()) {
+      j2 += j2Dir;
+    }
+  }
+  return [j1, j2];
+}
+
+map.on("moveend", (e) => {
+  console.log(e);
+});
 
 function updateCaches(pt: Pt) {
   cacheList.forEach((cache) => {
@@ -242,19 +327,19 @@ function movePlayer(dir: string) {
   switch (dir) {
     case "UP":
       newLoc.lat += TILE_DEGREES;
-      currCache.x += 1;
+      currCache.lat += 1;
       break;
     case "LEFT":
       newLoc.lng -= TILE_DEGREES;
-      currCache.y -= 1;
+      currCache.lng -= 1;
       break;
     case "DOWN":
       newLoc.lat -= TILE_DEGREES;
-      currCache.x -= 1;
+      currCache.lat -= 1;
       break;
     case "RIGHT":
       newLoc.lng += TILE_DEGREES;
-      currCache.y += 1;
+      currCache.lng += 1;
       break;
   }
   playerMarker.setLatLng(newLoc);
