@@ -41,7 +41,7 @@ Location-based game (like Pokemon Go) where players can navigate the real world 
 - [x] redraw grid to fill screen when happens
 - [x] make caches stateless and "despawn" when off screen
 
-### D3.c: : Core Mechanics
+### D3.c: Core Mechanics
 
 - [x] refactor updateCaches to better suit changes to cache storage required
 - [x] split cache interface into two, one immutable shared and one mutable
@@ -49,3 +49,7 @@ Location-based game (like Pokemon Go) where players can navigate the real world 
 - [x] create a map for caches that have been modified for memento pattern
 - [x] create caretaker interface for memento pattern
 - [x] modify drawCache to interact with stored caches to draw using data from memento
+
+### D3.d: Gameplay Across Real-world Space and Time
+
+- [ ] test access to the geolocation api
