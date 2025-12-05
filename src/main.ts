@@ -403,8 +403,8 @@ if ("geolocation" in navigator) {
         console.log(posDiffLat, posDiffLng);
         playerMarker.setLatLng(
           leaflet.latLng(
-            currPos.lat + posDiffLat * 10,
-            currPos.lng + posDiffLng * 10,
+            currPos.lat + posDiffLat * 1000,
+            currPos.lng + posDiffLng * 1000,
           ),
         );
         console.log(playerMarker.getLatLng());
