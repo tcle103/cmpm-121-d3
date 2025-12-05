@@ -222,78 +222,50 @@ function iJToCenter(i: number, j: number) {
   ]);
 }
 
-function _redrawCaches() {
+function centerToIJ(center: leaflet.LatLng) {
+  const latDiff: number = CLASSROOM_LATLNG.lat - center.lat;
+  const lngDiff: number = CLASSROOM_LATLNG.lng - center.lng;
+  console.log(latDiff);
+  return [latDiff / TILE_DEGREES, lngDiff / TILE_DEGREES];
+}
+
+function redrawCaches() {
   cacheList.length = 0;
   const center = map.getCenter();
   const bounds = map.getBounds();
-  const _ibounds = getIBounds(center, bounds);
-  const _jbounds = getJBounds(center, bounds);
+  const ibounds = getIBounds(center, bounds);
+  const jbounds = getJBounds(center, bounds);
 }
 
 function getIBounds(center: leaflet.LatLng, bounds: leaflet.LatLngBounds) {
-  // direction to move i1 or i2 in
-  // towards the bounds of the view
-  let i1Dir: number = 1;
-  let i2Dir: number = 1;
-
-  if (bounds.contains(center)) {
-    // center is inside the bounds
-    i1Dir = -1;
-  } else if (center.lat < bounds.getNorth()) {
-    // if new map view is below the center (i < 0)
-    i1Dir = -1;
-    i2Dir = -1;
-  }
   // north and south bounds of map in i
-  let i1: number = 0;
-  let i2: number = 0;
-  // move north and south bounds of map in i until
-  // they are within the bounds of the map currently
-  while (
-    iJToCenter(i1, 0).lat > bounds.getNorth() ||
-    iJToCenter(i2, 0).lat < bounds.getSouth()
-  ) {
-    if (iJToCenter(i1, 0).lat > bounds.getNorth()) {
-      i1 += i1Dir;
-    }
-    if (iJToCenter(i2, 0).lat < bounds.getSouth()) {
-      i2 += i2Dir;
-    }
+  // starts at center of map currently
+  let i1: number = centerToIJ(center)[0];
+  let i2: number = centerToIJ(center)[0];
+  while (iJToCenter(i1, 0).lat < bounds.getNorth()) {
+    i1 += 1;
   }
-  return [i1, i2];
+  while (iJToCenter(i2, 0).lat > bounds.getSouth()) {
+    i2 -= 1;
+  }
+  return [-i1, -i2];
 }
 
 function getJBounds(center: leaflet.LatLng, bounds: leaflet.LatLngBounds) {
-  // direction to move j1 or j2 in
-  // towards the bounds of the view
-  let j1Dir: number = 1;
-  let j2Dir: number = 1;
-
-  if (bounds.contains(center)) {
-    // center is inside the bounds
-    j1Dir = -1;
-  } else if (center.lat > bounds.getEast()) {
-    // if new map view is right the center (i < 0)
-    j1Dir = -1;
-    j2Dir = -1;
-  }
   // west and east bounds of map in j
-  let j1: number = 0;
-  let j2: number = 0;
+  // starts at center of map currently
+  let j1: number = centerToIJ(center)[1];
+  let j2: number = centerToIJ(center)[1];
   // move east and west bounds of map in i until
   // they are within the bounds of the map currently
-  while (
-    iJToCenter(0, j1).lng > bounds.getWest() ||
-    iJToCenter(0, j2).lng < bounds.getEast()
-  ) {
-    if (iJToCenter(0, j1).lng > bounds.getWest()) {
-      j1 += j1Dir;
-    }
-    if (iJToCenter(0, j2).lng < bounds.getEast()) {
-      j2 += j2Dir;
-    }
+  while (iJToCenter(0, j1).lng < bounds.getEast()) {
+    j1 += 1;
   }
-  return [j1, j2];
+  while (iJToCenter(0, j2).lng > bounds.getWest()) {
+    j2 -= 1;
+  }
+  console.log(bounds.getEast(), bounds.getWest());
+  return [-j1, -j2];
 }
 
 map.on("moveend", (e) => {
@@ -348,3 +320,7 @@ function movePlayer(dir: string) {
 
 setStatus();
 updateCaches(currCache);
+console.log(
+  getIBounds(map.getCenter(), map.getBounds()),
+  getJBounds(map.getCenter(), map.getBounds()),
+);
