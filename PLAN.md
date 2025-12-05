@@ -40,3 +40,12 @@ Location-based game (like Pokemon Go) where players can navigate the real world 
 - [x] detect when new grids need to be drawn (i.e. edge of curr grids are visible)
 - [x] redraw grid to fill screen when happens
 - [x] make caches stateless and "despawn" when off screen
+
+### D3.c: : Core Mechanics
+
+- [x] refactor updateCaches to better suit changes to cache storage required
+- [x] split cache interface into two, one immutable shared and one mutable
+- [x] update all cache functions to take the immutable shared class
+- [x] create a map for caches that have been modified for memento pattern
+- [ ] create caretaker interface for memento pattern
+- [ ] modify drawCache to interact with stored caches to draw using data from memento
