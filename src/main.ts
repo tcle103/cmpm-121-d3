@@ -183,9 +183,10 @@ function iJToCenter(i: number, j: number) {
 function centerToIJ(center: leaflet.LatLng) {
   const latDiff: number = CLASSROOM_LATLNG.lat - center.lat;
   const lngDiff: number = CLASSROOM_LATLNG.lng - center.lng;
+  console.log(latDiff / TILE_DEGREES);
   return [
-    Math.round(latDiff / TILE_DEGREES),
-    Math.round(lngDiff / TILE_DEGREES),
+    -Math.round(latDiff / TILE_DEGREES),
+    -Math.round(lngDiff / TILE_DEGREES),
   ];
 }
 
@@ -422,5 +423,12 @@ if ("geolocation" in navigator) {
   /* geolocation IS NOT available */
   console.log("pass");
 }
+const test1: Pt = { lat: 0, lng: -1, toString: ptToString };
+console.log(test1);
+const test2: leaflet.LatLng = iJToCenter(test1.lat, test1.lng);
+console.log(test2);
+const test3: number[] = centerToIJ(test2);
+console.log(test3);
+
 setStatus();
 redrawCaches(cacheSet);
