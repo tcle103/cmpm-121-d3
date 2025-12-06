@@ -387,14 +387,14 @@ function updateCaches(pt: Pt, cache: activeCache, cacheSet: Cache) {
 // Start game
 if ("geolocation" in navigator) {
   /* geolocation is available */
-  console.log("yahooo");
-  let lastPos: GeolocationPosition;
-  navigator.geolocation.getCurrentPosition((pos) => {
-    lastPos = pos;
-  }, (_e) => {
-    buttonControls = true;
-  });
   if (!buttonControls) {
+    console.log("yahooo");
+    let lastPos: GeolocationPosition;
+    navigator.geolocation.getCurrentPosition((pos) => {
+      lastPos = pos;
+    }, (_e) => {
+      buttonControls = true;
+    });
     navigator.geolocation.watchPosition((pos) => {
       if (lastPos) {
         const posDiffLat = lastPos.coords.latitude - pos.coords.latitude;
@@ -421,6 +421,13 @@ if ("geolocation" in navigator) {
 } else {
   /* geolocation IS NOT available */
   console.log("pass");
+}
+
+if (!buttonControls) {
+  upMoveButt.disabled = true;
+  downMoveButt.disabled = true;
+  leftMoveButt.disabled = true;
+  rightMoveButt.disabled = true;
 }
 
 setStatus();
