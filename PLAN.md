@@ -55,4 +55,4 @@ Location-based game (like Pokemon Go) where players can navigate the real world 
 - [x] test access to the geolocation api
 - [x] see how watchPosition behaves
 - [x] reposition player marker based on watchPosition
-- [ ] make switching happen between buttons and geolocation
+- [x] make switching happen between buttons and geolocation
