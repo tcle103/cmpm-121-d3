@@ -332,9 +332,10 @@ function ptToString(pt: Pt) {
 // Player state update functions
 // updates or updates stuff rep. player state
 function setStatus() {
+  const goalVal = POSS_VALS.findLast((element) => element);
   if (playerVal < 1) {
     statusPanelDiv.innerHTML = "Nothing in hand. Time to explore!";
-  } else if (playerVal == POSS_VALS[-1]) {
+  } else if (playerVal == goalVal) {
     statusPanelDiv.innerHTML = `You got a ${playerVal} token! You win!`;
   } else {
     statusPanelDiv.innerHTML =
