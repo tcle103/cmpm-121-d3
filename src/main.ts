@@ -23,6 +23,7 @@ const leftMoveButt = document.createElement("button");
 const downMoveButt = document.createElement("button");
 const rightMoveButt = document.createElement("button");
 const swapMove = document.createElement("button");
+const resetButt = document.createElement("button");
 
 // Our classroom location
 const CLASSROOM_LATLNG = leaflet.latLng(
@@ -148,6 +149,12 @@ swapMove.addEventListener("click", () => {
   swapMovement();
 });
 controlsDiv.append(swapMove);
+resetButt.innerHTML = "reset";
+resetButt.addEventListener("click", () => {
+  localStorage.clear();
+  location.reload();
+});
+controlsDiv.append(resetButt);
 
 leaflet.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
   attribution:
