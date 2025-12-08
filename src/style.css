@@ -16,3 +16,16 @@
   text-align: center;
   width: 150px;
 }
+
+.leaflet-div-icon {
+  background: none;
+  border: none;
+  text-align: center;
+  vertical-align: middle;
+  font-size: 10pt;
+  color: grey;
+}
+
+.active {
+  color: blue;
+}

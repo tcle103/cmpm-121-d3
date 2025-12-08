@@ -33,6 +33,8 @@ const CACHE_SPAWN_PROBABILITY = 0.1;
 const TILE_DEGREES = 1e-4;
 const DEF_COL = "#3388ff";
 const POSS_VALS: number[] = [1, 2, 4, 8, 16, 32, 64, 128, 256];
+const VAL_ICON = new Map();
+const VAL_ICON_ACTIVE = new Map();
 const SPAWNABLE_VALUE_INDEX_COUNT: number = 5;
 const cacheStr = "A cache! It holds a {0} token.";
 
@@ -78,6 +80,7 @@ interface activeCache {
   cache: boolean;
   pointVal: number;
   rectangle: leaflet.Rectangle;
+  marker: leaflet.Marker;
 }
 
 interface Pt {
@@ -151,6 +154,24 @@ playerMarker.addTo(map);
 
 const grid = leaflet.featureGroup();
 grid.addTo(map);
+
+for (let i = 0; i < POSS_VALS.length; ++i) {
+  VAL_ICON.set(
+    POSS_VALS[i],
+    leaflet.divIcon({
+      html: `${POSS_VALS[i]}`,
+      iconUrl: "../dummyicon.png",
+    }),
+  );
+  VAL_ICON_ACTIVE.set(
+    POSS_VALS[i],
+    leaflet.divIcon({
+      html: `${POSS_VALS[i]}`,
+      iconUrl: "../dummyicon.png",
+      className: "active",
+    }),
+  );
+}
 
 // Function definitions
 // Helpers
@@ -249,12 +270,14 @@ function updateRectStyle(cache: activeCache, cacheSet: Cache) {
       color: cacheSet.activeColor,
       fillColor: cacheSet.activeColor,
     });
+    cache.marker.setIcon(VAL_ICON_ACTIVE.get(cache.pointVal));
     cache.rectangle.bindTooltip(formatStr + " Click to interact!");
   } else {
     cache.rectangle.setStyle({
       color: cacheSet.inactiveColor,
       fillColor: cacheSet.inactiveColor,
     });
+    cache.marker.setIcon(VAL_ICON.get(cache.pointVal));
     cache.rectangle.bindTooltip(formatStr + " Need to get closer...");
   }
 }
@@ -297,6 +320,7 @@ function drawCache(i: number, j: number, cacheSet: Cache) {
     rectangle: rect,
     cache: false,
     pointVal: 0,
+    marker: leaflet.marker(iJToCenter(i, j)),
   };
   // see if caretaker has a saved state for particular position
   // if so restore state, else generate using (i,j) as seed to luck
@@ -365,6 +389,17 @@ function redrawCaches(cacheSet: Cache) {
 }
 
 function updateCaches(pt: Pt, cache: activeCache, cacheSet: Cache) {
+  if (cache.cache) {
+    const icon = VAL_ICON.get(cache.pointVal);
+    if (icon) {
+      cache.marker = leaflet.marker(
+        iJToCenter(cache.location.lat, cache.location.lng),
+        {
+          icon: icon,
+        },
+      ).addTo(map);
+    }
+  }
   if (inCache(cache)) {
     cache.interactible = true;
     setInteractible(cache, cacheSet);
@@ -388,7 +423,6 @@ function updateCaches(pt: Pt, cache: activeCache, cacheSet: Cache) {
 if ("geolocation" in navigator) {
   /* geolocation is available */
   if (!buttonControls) {
-    console.log("yahooo");
     let lastPos: GeolocationPosition;
     navigator.geolocation.getCurrentPosition((pos) => {
       lastPos = pos;
@@ -400,14 +434,12 @@ if ("geolocation" in navigator) {
         const posDiffLat = lastPos.coords.latitude - pos.coords.latitude;
         const posDiffLng = lastPos.coords.longitude - pos.coords.longitude;
         const currPos = playerMarker.getLatLng();
-        console.log(posDiffLat, posDiffLng);
         playerMarker.setLatLng(
           leaflet.latLng(
             currPos.lat + posDiffLat,
             currPos.lng + posDiffLng,
           ),
         );
-        console.log(playerMarker.getLatLng());
         const posToIJ = centerToIJ(playerMarker.getLatLng());
         currCache.lat = posToIJ[0];
         currCache.lng = posToIJ[1];
@@ -420,7 +452,7 @@ if ("geolocation" in navigator) {
   }
 } else {
   /* geolocation IS NOT available */
-  console.log("pass");
+  buttonControls = true;
 }
 
 if (!buttonControls) {
