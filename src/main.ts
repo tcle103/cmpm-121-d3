@@ -351,31 +351,23 @@ function setButtons(to: boolean) {
 }
 
 function geolocationSet() {
-  let lastPos: GeolocationPosition;
   navigator.geolocation.getCurrentPosition((pos) => {
-    lastPos = pos;
+    playerMarker.setLatLng([pos.coords.latitude, pos.coords.longitude]);
+    map.setView([pos.coords.latitude, pos.coords.longitude]);
   }, (_e) => {
     buttonControls = true;
   });
   navigator.geolocation.watchPosition((pos) => {
-    if (lastPos) {
-      const posDiffLat = lastPos.coords.latitude - pos.coords.latitude;
-      const posDiffLng = lastPos.coords.longitude - pos.coords.longitude;
-      const currPos = playerMarker.getLatLng();
-      playerMarker.setLatLng(
-        leaflet.latLng(
-          currPos.lat + posDiffLat,
-          currPos.lng + posDiffLng,
-        ),
-      );
-      const posToIJ = centerToIJ(playerMarker.getLatLng());
-      currCache.lat = posToIJ[0];
-      currCache.lng = posToIJ[1];
-      console.log(currCache);
-      cacheList.forEach((cache) => {
-        updateCaches(currCache, cache, cacheSet);
-      });
-    }
+    playerMarker.setLatLng([pos.coords.latitude, pos.coords.longitude]);
+    const posToIJ = centerToIJ(
+      leaflet.latLng([pos.coords.latitude, pos.coords.longitude]),
+    );
+    currCache.lat = posToIJ[0];
+    currCache.lng = posToIJ[1];
+    console.log(currCache);
+    cacheList.forEach((cache) => {
+      updateCaches(currCache, cache, cacheSet);
+    });
   });
 }
 
