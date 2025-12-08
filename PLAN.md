@@ -56,6 +56,6 @@ Location-based game (like Pokemon Go) where players can navigate the real world 
 - [x] see how watchPosition behaves
 - [x] reposition player marker based on watchPosition
 - [x] make switching happen between buttons and geolocation
-- [ ] test saving anything to localstorage
+- [x] test saving anything to localstorage
 - [ ] save memento'd caches and current player hand to localstorage
 - [ ] add a button that clears localstorage and refresh page

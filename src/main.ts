@@ -189,9 +189,10 @@ for (let i = 0; i < POSS_VALS.length; ++i) {
 
 // Function definitions
 // Helpers
-function _mapToString(map: Map<string, activeCache>) {
+function mapToString(map: Map<string, activeCache>): string {
   let str = "";
-  for (let key in map) {
+  map.keys().forEach((key) => {
+    console.log(key);
     str += key;
     str += ">";
     const get = map.get(key);
@@ -199,7 +200,22 @@ function _mapToString(map: Map<string, activeCache>) {
       const stored = cacheToStore(get);
       str += JSON.stringify(stored);
     }
-  }
+    str += "|";
+  });
+  return str;
+}
+
+function stringToMap(str: string): Map<string, activeCache> {
+  const map = new Map();
+  const pairs: string[] = str.split("|");
+  pairs.forEach((pair) => {
+    if (pair) {
+      const keyVal: string[] = pair.split(">");
+      const val = JSON.parse(keyVal[1]);
+      map.set(keyVal[0], storeToCache(val));
+    }
+  });
+  return map;
 }
 
 function cacheToStore(cache: activeCache): storeCache {
@@ -212,7 +228,7 @@ function cacheToStore(cache: activeCache): storeCache {
   };
 }
 
-function _storeToCache(stored: storeCache): activeCache {
+function storeToCache(stored: storeCache): activeCache {
   const pt: Pt = {
     lat: stored.location[0],
     lng: stored.location[1],
@@ -488,6 +504,8 @@ function setInteractible(cache: activeCache, cacheSet: Cache) {
     updateRectStyle(cache, cacheSet);
     // modified/player interacted, so save state with caretaker
     c.set(c, cache.location, cache);
+    localStorage.setItem("caches", mapToString(c.cacheMap));
+    console.log(localStorage.getItem("caches"));
   });
 }
 
@@ -547,6 +565,7 @@ if (!buttonControls) {
 const savedActive = localStorage.getItem("caches");
 if (savedActive) {
   // if saved game data stored in localStorage
+  c.cacheMap = stringToMap(savedActive);
 }
 setStatus();
 redrawCaches(cacheSet);
