@@ -53,6 +53,7 @@ const c: cacheCaretaker = {
   get: (c: cacheCaretaker, pt: Pt) => {
     const cache: activeCache | undefined = c.cacheMap.get(pt.toString(pt));
     if (cache) {
+      console.log(JSON.stringify(cacheToStore(cache)));
       return cache;
     } else {
       return undefined;
@@ -82,6 +83,13 @@ interface activeCache {
   pointVal: number;
   rectangle: leaflet.Rectangle;
   marker: leaflet.Marker;
+}
+
+interface storeCache {
+  location: number[];
+  interactible: boolean;
+  cache: boolean;
+  pointVal: number;
 }
 
 interface Pt {
@@ -181,6 +189,54 @@ for (let i = 0; i < POSS_VALS.length; ++i) {
 
 // Function definitions
 // Helpers
+function _mapToString(map: Map<string, activeCache>) {
+  let str = "";
+  for (let key in map) {
+    str += key;
+    str += ">";
+    const get = map.get(key);
+    if (get) {
+      const stored = cacheToStore(get);
+      str += JSON.stringify(stored);
+    }
+  }
+}
+
+function cacheToStore(cache: activeCache): storeCache {
+  const loc: number[] = [cache.location.lat, cache.location.lng];
+  return {
+    location: loc,
+    interactible: cache.interactible,
+    cache: cache.cache,
+    pointVal: cache.pointVal,
+  };
+}
+
+function _storeToCache(stored: storeCache): activeCache {
+  const pt: Pt = {
+    lat: stored.location[0],
+    lng: stored.location[1],
+    toString: ptToString,
+  };
+  const rect = leaflet.rectangle(
+    leaflet.latLngBounds([[
+      CLASSROOM_LATLNG.lat + (-0.5 + stored.location[0]) * cacheSet.size,
+      CLASSROOM_LATLNG.lng + (-0.5 + stored.location[1]) * cacheSet.size,
+    ], [
+      CLASSROOM_LATLNG.lat + (0.5 + stored.location[0]) * cacheSet.size,
+      CLASSROOM_LATLNG.lng + (0.5 + stored.location[1]) * cacheSet.size,
+    ]]),
+  );
+  return {
+    location: pt,
+    interactible: stored.interactible,
+    cache: stored.cache,
+    rectangle: rect,
+    pointVal: stored.pointVal,
+    marker: leaflet.marker([pt.lat, pt.lng]),
+  };
+}
+
 function getDist(pt1: Pt, pt2: Pt) {
   const x1 = pt1.lat;
   const x2 = pt2.lat;
@@ -488,5 +544,9 @@ if (!buttonControls) {
   setButtons(true);
 }
 
+const savedActive = localStorage.getItem("caches");
+if (savedActive) {
+  // if saved game data stored in localStorage
+}
 setStatus();
 redrawCaches(cacheSet);
