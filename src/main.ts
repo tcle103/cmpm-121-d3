@@ -505,6 +505,7 @@ function setInteractible(cache: activeCache, cacheSet: Cache) {
     // modified/player interacted, so save state with caretaker
     c.set(c, cache.location, cache);
     localStorage.setItem("caches", mapToString(c.cacheMap));
+    localStorage.setItem("playerVal", playerVal.toString());
     console.log(localStorage.getItem("caches"));
   });
 }
@@ -563,9 +564,11 @@ if (!buttonControls) {
 }
 
 const savedActive = localStorage.getItem("caches");
-if (savedActive) {
+const savedPlayerVal = localStorage.getItem("playerVal");
+if (savedActive && savedPlayerVal) {
   // if saved game data stored in localStorage
   c.cacheMap = stringToMap(savedActive);
+  playerVal = parseInt(savedPlayerVal);
 }
 setStatus();
 redrawCaches(cacheSet);
