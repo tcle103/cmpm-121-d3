@@ -22,6 +22,7 @@ const upMoveButt = document.createElement("button");
 const leftMoveButt = document.createElement("button");
 const downMoveButt = document.createElement("button");
 const rightMoveButt = document.createElement("button");
+const swapMove = document.createElement("button");
 
 // Our classroom location
 const CLASSROOM_LATLNG = leaflet.latLng(
@@ -35,7 +36,7 @@ const DEF_COL = "#3388ff";
 const POSS_VALS: number[] = [1, 2, 4, 8, 16, 32, 64, 128, 256];
 const VAL_ICON = new Map();
 const VAL_ICON_ACTIVE = new Map();
-const SPAWNABLE_VALUE_INDEX_COUNT: number = 5;
+const SPAWNABLE_VALUE_INDEX_COUNT: number = 8;
 const cacheStr = "A cache! It holds a {0} token.";
 
 const cacheSet = {
@@ -134,6 +135,11 @@ rightMoveButt.addEventListener("click", () => {
   movePlayer("RIGHT", cacheSet);
 });
 controlsDiv.append(rightMoveButt);
+swapMove.innerHTML = "swap";
+swapMove.addEventListener("click", () => {
+  swapMovement();
+});
+controlsDiv.append(swapMove);
 
 leaflet.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
   attribution:
@@ -257,9 +263,64 @@ function setStatus() {
   }
 }
 
+function setButtons(to: boolean) {
+  upMoveButt.disabled = to;
+  downMoveButt.disabled = to;
+  leftMoveButt.disabled = to;
+  rightMoveButt.disabled = to;
+}
+
+function geolocationSet() {
+  let lastPos: GeolocationPosition;
+  navigator.geolocation.getCurrentPosition((pos) => {
+    lastPos = pos;
+  }, (_e) => {
+    buttonControls = true;
+  });
+  navigator.geolocation.watchPosition((pos) => {
+    if (lastPos) {
+      const posDiffLat = lastPos.coords.latitude - pos.coords.latitude;
+      const posDiffLng = lastPos.coords.longitude - pos.coords.longitude;
+      const currPos = playerMarker.getLatLng();
+      playerMarker.setLatLng(
+        leaflet.latLng(
+          currPos.lat + posDiffLat,
+          currPos.lng + posDiffLng,
+        ),
+      );
+      const posToIJ = centerToIJ(playerMarker.getLatLng());
+      currCache.lat = posToIJ[0];
+      currCache.lng = posToIJ[1];
+      console.log(currCache);
+      cacheList.forEach((cache) => {
+        updateCaches(currCache, cache, cacheSet);
+      });
+    }
+  });
+}
+
+function swapMovement() {
+  if (buttonControls) {
+    if ("geolocation" in navigator) {
+      buttonControls = false;
+      geolocationSet();
+      setButtons(true);
+    } else {
+      console.log("cannot swap to geolocation!");
+    }
+  } else {
+    buttonControls = true;
+    const currloc = playerMarker.getLatLng();
+    const ij = centerToIJ(currloc);
+    playerMarker.setLatLng(iJToCenter(ij[0], ij[1]));
+    setButtons(false);
+  }
+}
+
 function updateRectStyle(cache: activeCache, cacheSet: Cache) {
   if (!cache.cache) {
     cache.rectangle.setStyle({ opacity: 0.0, fillOpacity: 0.0 });
+    cache.marker.remove();
     cache.rectangle.unbindTooltip();
     cache.rectangle.off("click");
     return;
@@ -330,6 +391,7 @@ function drawCache(i: number, j: number, cacheSet: Cache) {
   } else {
     if (luck([i, j].toString()) < cacheSet.spawnProbability) {
       newCache.cache = true;
+      newCache.marker.addTo(grid);
       // Each cache has a random point value, mutable by the player
       const pointValue = Math.floor(
         luck([i, j, "initialValue"].toString()) * SPAWNABLE_VALUE_INDEX_COUNT,
@@ -364,6 +426,9 @@ function setInteractible(cache: activeCache, cacheSet: Cache) {
         setStatus();
       }, 1500);
     }
+    cache.rectangle.on("dblclick", () => {
+      console.log("ugh");
+    });
     updateRectStyle(cache, cacheSet);
     // modified/player interacted, so save state with caretaker
     c.set(c, cache.location, cache);
@@ -389,17 +454,6 @@ function redrawCaches(cacheSet: Cache) {
 }
 
 function updateCaches(pt: Pt, cache: activeCache, cacheSet: Cache) {
-  if (cache.cache) {
-    const icon = VAL_ICON.get(cache.pointVal);
-    if (icon) {
-      cache.marker = leaflet.marker(
-        iJToCenter(cache.location.lat, cache.location.lng),
-        {
-          icon: icon,
-        },
-      ).addTo(map);
-    }
-  }
   if (inCache(cache)) {
     cache.interactible = true;
     setInteractible(cache, cacheSet);
@@ -423,32 +477,7 @@ function updateCaches(pt: Pt, cache: activeCache, cacheSet: Cache) {
 if ("geolocation" in navigator) {
   /* geolocation is available */
   if (!buttonControls) {
-    let lastPos: GeolocationPosition;
-    navigator.geolocation.getCurrentPosition((pos) => {
-      lastPos = pos;
-    }, (_e) => {
-      buttonControls = true;
-    });
-    navigator.geolocation.watchPosition((pos) => {
-      if (lastPos) {
-        const posDiffLat = lastPos.coords.latitude - pos.coords.latitude;
-        const posDiffLng = lastPos.coords.longitude - pos.coords.longitude;
-        const currPos = playerMarker.getLatLng();
-        playerMarker.setLatLng(
-          leaflet.latLng(
-            currPos.lat + posDiffLat,
-            currPos.lng + posDiffLng,
-          ),
-        );
-        const posToIJ = centerToIJ(playerMarker.getLatLng());
-        currCache.lat = posToIJ[0];
-        currCache.lng = posToIJ[1];
-        console.log(currCache);
-        cacheList.forEach((cache) => {
-          updateCaches(currCache, cache, cacheSet);
-        });
-      }
-    });
+    geolocationSet();
   }
 } else {
   /* geolocation IS NOT available */
@@ -456,10 +485,7 @@ if ("geolocation" in navigator) {
 }
 
 if (!buttonControls) {
-  upMoveButt.disabled = true;
-  downMoveButt.disabled = true;
-  leftMoveButt.disabled = true;
-  rightMoveButt.disabled = true;
+  setButtons(true);
 }
 
 setStatus();
