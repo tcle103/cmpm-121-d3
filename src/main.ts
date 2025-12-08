@@ -65,6 +65,8 @@ const c: cacheCaretaker = {
   },
 };
 
+let id: number = 0;
+
 // Interface definitions
 // flyweight cache implementation: immutable state interface
 interface Cache {
@@ -357,7 +359,7 @@ function geolocationSet() {
   }, (_e) => {
     buttonControls = true;
   });
-  navigator.geolocation.watchPosition((pos) => {
+  id = navigator.geolocation.watchPosition((pos) => {
     playerMarker.setLatLng([pos.coords.latitude, pos.coords.longitude]);
     const posToIJ = centerToIJ(
       leaflet.latLng([pos.coords.latitude, pos.coords.longitude]),
@@ -384,6 +386,7 @@ function swapMovement() {
     buttonControls = true;
     const currloc = playerMarker.getLatLng();
     const ij = centerToIJ(currloc);
+    navigator.geolocation.clearWatch(id);
     playerMarker.setLatLng(iJToCenter(ij[0], ij[1]));
     setButtons(false);
   }
@@ -438,29 +441,35 @@ function movePlayer(dir: string, cacheSet: Cache) {
 
 // Cache drawing and update functions
 function drawCache(i: number, j: number, cacheSet: Cache) {
-  const rect = leaflet.rectangle(
-    leaflet.latLngBounds([[
-      CLASSROOM_LATLNG.lat + (-0.5 + i) * cacheSet.size,
-      CLASSROOM_LATLNG.lng + (-0.5 + j) * cacheSet.size,
-    ], [
-      CLASSROOM_LATLNG.lat + (0.5 + i) * cacheSet.size,
-      CLASSROOM_LATLNG.lng + (0.5 + j) * cacheSet.size,
-    ]]),
-  );
-  let newCache: activeCache = {
-    interactible: false,
-    location: { lat: i, lng: j, toString: ptToString },
-    rectangle: rect,
-    cache: false,
-    pointVal: 0,
-    marker: leaflet.marker(iJToCenter(i, j)),
-  };
+  let newCache: activeCache;
   // see if caretaker has a saved state for particular position
   // if so restore state, else generate using (i,j) as seed to luck
-  const memento: activeCache | undefined = c.get(c, newCache.location);
+  const memento: activeCache | undefined = c.get(c, {
+    lat: i,
+    lng: j,
+    toString: ptToString,
+  });
   if (memento) {
     newCache = memento;
+    newCache.marker.addTo(grid);
   } else {
+    const rect = leaflet.rectangle(
+      leaflet.latLngBounds([[
+        CLASSROOM_LATLNG.lat + (-0.5 + i) * cacheSet.size,
+        CLASSROOM_LATLNG.lng + (-0.5 + j) * cacheSet.size,
+      ], [
+        CLASSROOM_LATLNG.lat + (0.5 + i) * cacheSet.size,
+        CLASSROOM_LATLNG.lng + (0.5 + j) * cacheSet.size,
+      ]]),
+    );
+    newCache = {
+      interactible: false,
+      location: { lat: i, lng: j, toString: ptToString },
+      rectangle: rect,
+      cache: false,
+      pointVal: 0,
+      marker: leaflet.marker(iJToCenter(i, j)),
+    };
     if (luck([i, j].toString()) < cacheSet.spawnProbability) {
       newCache.cache = true;
       newCache.marker.addTo(grid);
